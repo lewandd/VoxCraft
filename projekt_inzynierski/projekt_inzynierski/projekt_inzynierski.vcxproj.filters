@@ -22,4 +22,17 @@
       <Filter>Pliki źródłowe</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="shader_s.h">
+      <Filter>Pliki źródłowe</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shader.fs">
+      <Filter>Pliki źródłowe</Filter>
+    </None>
+    <None Include="shader.vs">
+      <Filter>Pliki źródłowe</Filter>
+    </None>
+  </ItemGroup>
 </Project>
