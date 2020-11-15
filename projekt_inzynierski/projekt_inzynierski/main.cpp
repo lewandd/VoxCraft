@@ -10,6 +10,7 @@
 #include "camera.h"
 #include "shader_s.h"
 #include <iostream>
+#include <vector>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -114,6 +115,31 @@ int main()
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
+    int tab[12][12][12];
+    for (int i = 0; i < 12; ++i)
+        for (int j = 0; j < 12; ++j)
+            tab[i][0][j] = 1;
+
+    tab[0][1][0] = 1;
+    tab[1][1][0] = 1;
+    tab[2][1][0] = 1;
+    tab[3][1][11] = 1;
+    tab[2][1][3] = 1;
+    tab[2][2][4] = 1;
+    tab[2][3][5] = 1;
+    tab[4][3][5] = 1;
+    tab[6][3][5] = 1;
+    tab[8][4][5] = 1;
+    tab[8][4][8] = 1;
+    tab[11][5][11] = 1;
+
+    std::vector<glm::vec3> cubes;
+    for (int i = 0; i < 12; ++i)
+        for (int j = 0; j < 12; ++j)
+            for (int k = 0; k < 12; ++k)
+                if (tab[i][j][k] == 1)
+                    cubes.push_back(glm::vec3(i ,j ,k));
+
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -183,18 +209,22 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
-        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);        
         glm::mat4 view = camera.GetViewMatrix();
 
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        
+        for (int i = 0; i < (int)cubes.size(); ++i) {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubes[i]);
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-        // draw triangle
-        shader.use();
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+            // draw triangle
+            shader.use();
+            glBindVertexArray(VAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
