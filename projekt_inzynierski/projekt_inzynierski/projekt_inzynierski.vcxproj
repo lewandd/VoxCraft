@@ -155,6 +155,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="data_sets.h" />
+    <ClInclude Include="octree.h" />
+    <ClInclude Include="octree_node.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="shader_s.h" />
     <ClInclude Include="stb_image.h" />
