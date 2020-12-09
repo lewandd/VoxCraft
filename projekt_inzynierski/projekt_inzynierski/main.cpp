@@ -13,6 +13,7 @@
 #include "octree.h"
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -34,6 +35,9 @@ float lastFrame = 0.0f;
 
 // octree
 Octree o;
+
+// wybrana ściana bloku
+int side = 0;
 
 int main()
 {
@@ -185,6 +189,7 @@ int main()
     int projLoc = glGetUniformLocation(shader.ID, "projection");
     int viewLoc = glGetUniformLocation(shader.ID, "view");
     int scaleLoc = glGetUniformLocation(shader.ID, "scale");
+    int selectedLoc = glGetUniformLocation(shader.ID, "selected");
 
     // render loop
     // -----------
@@ -217,12 +222,70 @@ int main()
             model = glm::scale(model, glm::vec3(o.fullBlocks[i]->intoTRI_ARGS().scale));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
             glUniform1f(scaleLoc, scale);
+            glUniform1f(selectedLoc, 1.0f);
+
+            if (o.fullBlocks[i]->isSelected())
+                glUniform1f(selectedLoc, 0.9f);
 
             // draw triangle
             shader.use();
             glBindVertexArray(VAO);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+        
+        o.unsetSelected();
+
+        float dep;
+        glReadPixels(400, 400, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &dep);
+        float z = 1.0f / (dep * (1.0f / 100.0f - 1.0f / 0.1f) + 1.0f / 0.1f);
+
+        glm::vec3 lookAt = camera.Position + camera.Front * z;
+        //printf("exactly (%8.5f, %8.5f, %8.5f) ", lookAt.x, lookAt.y, lookAt.z);
+        glLineWidth(3.f);
+
+        if (z < 99.9f) {
+            glm::vec3 dl = glm::vec3(round(lookAt.x)-lookAt.x, round(lookAt.y)-lookAt.y, round(lookAt.z)-lookAt.z);
+
+            if ((abs(dl.x) < abs(dl.y)) && (abs(dl.x) < abs(dl.z))) {
+                if (camera.Front.x > 0.0f) {
+                    side = 1;
+                    lookAt.x += 0.01f;
+                }
+                else {
+                    side = 2;
+                    lookAt.x -= 0.01f;
+                }
+            }
+            else if (abs(dl.y) < abs(dl.z)) {
+                if (camera.Front.y > 0.0f) {
+                    side = 3;
+                    lookAt.y += 0.01f;
+                }
+                else {
+                    side = 4;
+                    lookAt.y -= 0.01f;
+                }
+            }
+            else {
+                if (camera.Front.z > 0.0f) {
+                    side = 5;
+                    lookAt.z += 0.01f;
+                }
+                else {
+                    side = 6;
+                    lookAt.z -= 0.01f;
+                }
+            }
+
+            //printf("changed (%8.5f, %8.5f, %8.5f) ", lookAt.x, lookAt.y, lookAt.z);
+
+            float line_t = 0.007f;
+            if (!((abs(dl.x) < line_t && abs(dl.y) < line_t) || (abs(dl.x) < line_t && abs(dl.z) < line_t) || (abs(dl.y) < line_t && abs(dl.z) < line_t)))
+                o.setSelected(floor(lookAt.x), floor(lookAt.y), floor(lookAt.z));
+        }
+
+        //printf("%5.1f noticed (%2d, %2d, %2d) \n", z, o.selected_x, o.selected_y, o.selected_z);
+
         // tymczasowy wskaźnik środka
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
