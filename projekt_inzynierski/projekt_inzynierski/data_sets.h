@@ -6,7 +6,7 @@
 
 #include <vector>
 
-std::vector <glm::vec3> c[3];
+std::vector <glm::vec3> c[9];
 
 void set_data() {
     c[2].push_back(glm::vec3(8, 0, 0));
