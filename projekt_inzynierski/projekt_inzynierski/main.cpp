@@ -9,6 +9,8 @@
 
 #include "camera.h"
 #include "shader_s.h"
+#include "data_sets.h"
+#include "octree.h"
 #include <iostream>
 #include <vector>
 
@@ -29,6 +31,9 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
+
+// octree
+Octree o;
 
 int main()
 {
@@ -115,30 +120,18 @@ int main()
     0.0f,   1.0f,   0.0f,   0.0f,   1.0f,
     };
 
-    int tab[12][12][12];
-    for (int i = 0; i < 12; ++i)
-        for (int j = 0; j < 12; ++j)
-            tab[i][0][j] = 1;
+    set_data();
 
-    tab[0][1][0] = 1;
-    tab[1][1][0] = 1;
-    tab[2][1][0] = 1;
-    tab[3][1][11] = 1;
-    tab[2][1][3] = 1;
-    tab[2][2][4] = 1;
-    tab[2][3][5] = 1;
-    tab[4][3][5] = 1;
-    tab[6][3][5] = 1;
-    tab[8][4][5] = 1;
-    tab[8][4][8] = 1;
-    tab[11][5][11] = 1;
-
-    std::vector<glm::vec3> cubes;
-    for (int i = 0; i < 12; ++i)
-        for (int j = 0; j < 12; ++j)
-            for (int k = 0; k < 12; ++k)
-                if (tab[i][j][k] == 1)
-                    cubes.push_back(glm::vec3(i ,j ,k));
+    for (int scale = 0; scale < 9; ++scale) {
+        for (int i = 0; i < c[scale].size(); ++i) {
+            // dodanie bloku
+            for (int j = 0; j < (1 << scale); ++j)
+                for (int k = 0; k < (1 << scale); ++k)
+                    for (int l = 0; l < (1 << scale); ++l) {
+                        o.add((int)c[scale][i][0] + j, (int)c[scale][i][1] + k, (int)c[scale][i][2] + l, 1);
+                    }
+        }
+    }
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -191,6 +184,7 @@ int main()
     int modelLoc = glGetUniformLocation(shader.ID, "model");
     int projLoc = glGetUniformLocation(shader.ID, "projection");
     int viewLoc = glGetUniformLocation(shader.ID, "view");
+    int scaleLoc = glGetUniformLocation(shader.ID, "scale");
 
     // render loop
     // -----------
@@ -216,10 +210,13 @@ int main()
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         
-        for (int i = 0; i < (int)cubes.size(); ++i) {
+        for (int i = 0; i < (int)o.fullBlocks.size(); ++i) {
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, cubes[i]);
+            model = glm::translate(model, glm::vec3(o.fullBlocks[i]->x, o.fullBlocks[i]->y, o.fullBlocks[i]->z));
+            float scale = o.fullBlocks[i]->intoTRI_ARGS().scale;
+            model = glm::scale(model, glm::vec3(o.fullBlocks[i]->intoTRI_ARGS().scale));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+            glUniform1f(scaleLoc, scale);
 
             // draw triangle
             shader.use();
