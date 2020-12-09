@@ -223,6 +223,12 @@ int main()
             glBindVertexArray(VAO);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+        // tymczasowy wskaźnik środka
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f))));
+
+        glDrawArrays(GL_LINES, 0, 36);      
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
