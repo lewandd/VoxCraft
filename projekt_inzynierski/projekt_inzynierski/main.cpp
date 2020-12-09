@@ -17,6 +17,7 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void processInput(GLFWwindow* window);
 
 // settings
@@ -64,6 +65,7 @@ int main()
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // glad: load all OpenGL function pointers
@@ -338,6 +340,32 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        if (o.existSelected())
+            o.remove(o.selected_x, o.selected_y, o.selected_z);
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        if (o.existSelected()) {
+            if (side == 1) {
+                o.add(o.selected_x - 1, o.selected_y, o.selected_z, 1);
+            }
+            if (side == 2)
+                o.add(o.selected_x + 1, o.selected_y, o.selected_z, 1);
+            if (side == 3){
+                o.add(o.selected_x, o.selected_y-1, o.selected_z, 1);
+             }
+            if (side == 4)
+                o.add(o.selected_x, o.selected_y+1, o.selected_z, 1);
+            if (side == 5)
+                o.add(o.selected_x, o.selected_y, o.selected_z-1, 1);
+            if (side == 6)
+                o.add(o.selected_x, o.selected_y, o.selected_z+1, 1);
+        }
+    }
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
