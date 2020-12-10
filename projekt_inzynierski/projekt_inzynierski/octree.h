@@ -56,7 +56,7 @@ public:
         // update existed
         for (int lvl = 0; lvl < blocks.size(); ++lvl) {
             // delete from full blocks
-            if (blocks[lvl]->isFull())
+            if (blocks[lvl]->sameType())
                 deleteFromFullBlocks(blocks[lvl]);
 
             blocks[lvl]->size--;
