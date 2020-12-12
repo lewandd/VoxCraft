@@ -21,9 +21,9 @@ const int DIM_SIZE[] = {
 struct TRI_ARGS {
     float x, y, z;
     float scale;
-    float type;
+    int type;
 
-    TRI_ARGS(float x, float y, float z, float scale, float type) {
+    TRI_ARGS(float x, float y, float z, float scale, int type) {
         this->x = x;
         this->y = y;
         this->z = z;
@@ -32,7 +32,7 @@ struct TRI_ARGS {
     }
 
     void show() {
-        printf("(%.0f, %.0f, %.0f), scale: %.0f, type: %.0f\n", x, y, z, scale, type);
+        printf("(%.0f, %.0f, %.0f), scale: %.0f, type: %d\n", x, y, z, scale, type);
     }
 };
 
@@ -101,7 +101,7 @@ public:
     }
 
     TRI_ARGS intoTRI_ARGS() {
-        return TRI_ARGS(x, y, z, 1 << (8 - level), type);
+        return TRI_ARGS((float)x, (float)y, (float)z, (float) (1 << (8 - level)), type);
     }
 
     bool mergeUpdateType() {

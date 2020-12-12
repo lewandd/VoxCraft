@@ -54,7 +54,7 @@ public:
         }
 
         // update existed
-        for (int lvl = 0; lvl < blocks.size(); ++lvl) {
+        for (int lvl = 0; lvl < (int)blocks.size(); ++lvl) {
             // delete from full blocks
             if (blocks[lvl]->sameType())
                 deleteFromFullBlocks(blocks[lvl]);
@@ -141,7 +141,7 @@ public:
     }
 
     void show(vector<OctreeNode*> v) {
-        for (int i = 0; i < v.size(); i++)
+        for (int i = 0; i < (int)v.size(); i++)
             show(v[i]);
     }
 
@@ -169,7 +169,6 @@ private:
         OctreeNode* tmp = root;
         int level = target->level;
         int offset = 1 << 7;
-        int ind;
 
         vector <OctreeNode*> blocksList = getBlocks(x, y, z);
         for (int i = blocksList.size() - 1; i >= 0; --i) {

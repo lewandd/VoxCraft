@@ -131,7 +131,7 @@ int main()
     set_data();
 
     for (int scale = 0; scale < 9; ++scale) {
-        for (int i = 0; i < c[scale].size(); ++i) {
+        for (int i = 0; i < (int)c[scale].size(); ++i) {
             // dodanie bloku
             for (int j = 0; j < (1 << scale); ++j)
                 for (int k = 0; k < (1 << scale); ++k)
@@ -225,7 +225,7 @@ int main()
     // -----------
     while (!glfwWindowShouldClose(window))
     {
-        float currentFrame = glfwGetTime();
+        float currentFrame = (float)glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
@@ -313,7 +313,7 @@ int main()
 
             float line_t = 0.007f;
             if (!((abs(dl.x) < line_t && abs(dl.y) < line_t) || (abs(dl.x) < line_t && abs(dl.z) < line_t) || (abs(dl.y) < line_t && abs(dl.z) < line_t)))
-                o.setSelected(floor(lookAt.x), floor(lookAt.y), floor(lookAt.z));
+                o.setSelected((int)floor(lookAt.x), (int)floor(lookAt.y), (int)floor(lookAt.z));
         }
 
         //printf("%5.1f noticed (%2d, %2d, %2d) \n", z, o.selected_x, o.selected_y, o.selected_z);
@@ -417,16 +417,16 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
     if (firstMouse)
     {
-        lastX = xpos;
-        lastY = ypos;
+        lastX = (float) xpos;
+        lastY = (float) ypos;
         firstMouse = false;
     }
 
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+    float xoffset = (float) (xpos - lastX);
+    float yoffset = (float) (lastY - ypos); // reversed since y-coordinates go from bottom to top
 
-    lastX = xpos;
-    lastY = ypos;
+    lastX = (float) xpos;
+    lastY = (float) ypos;
 
     camera.ProcessMouseMovement(xoffset, yoffset);
 }
