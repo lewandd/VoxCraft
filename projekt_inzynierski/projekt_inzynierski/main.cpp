@@ -85,47 +85,47 @@ int main()
     // set up vertex data
     // ------------------
     float vertices[] = {
-    0.0f,   0.0f,   0.0f,   1.0f,   0.0f, // left side
-    1.0f,   0.0f,   0.0f,   0.0f,   0.0f,
-    1.0f,   1.0f,   0.0f,   0.0f,   1.0f,
-    1.0f,   1.0f,   0.0f,   0.0f,   1.0f,
-    0.0f,   1.0f,   0.0f,   1.0f,   1.0f,
-    0.0f,   0.0f,   0.0f,   1.0f,   0.0f,
+    0.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f, // left side
+    1.0f,   0.0f,   0.0f,   0.0f,   0.0f, 0.0f,
+    1.0f,   1.0f,   0.0f,   0.0f,   1.0f, 0.0f,
+    1.0f,   1.0f,   0.0f,   0.0f,   1.0f, 0.0f,
+    0.0f,   1.0f,   0.0f,   1.0f,   1.0f, 0.0f,
+    0.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f,
 
-    0.0f,   0.0f,   1.0f,   0.0f,   0.0f, // right side
-    1.0f,   0.0f,   1.0f,   1.0f,   0.0f,
-    1.0f,   1.0f,   1.0f,   1.0f,   1.0f,
-    1.0f,   1.0f,   1.0f,   1.0f,   1.0f,
-    0.0f,   1.0f,   1.0f,   0.0f,   1.0f,
-    0.0f,   0.0f,   1.0f,   0.0f,   0.0f,
+    0.0f,   0.0f,   1.0f,   0.0f,   0.0f, 0.0f,// right side
+    1.0f,   0.0f,   1.0f,   1.0f,   0.0f, 0.0f,
+    1.0f,   1.0f,   1.0f,   1.0f,   1.0f, 0.0f,
+    1.0f,   1.0f,   1.0f,   1.0f,   1.0f, 0.0f,
+    0.0f,   1.0f,   1.0f,   0.0f,   1.0f, 0.0f,
+    0.0f,   0.0f,   1.0f,   0.0f,   0.0f, 0.0f,
 
-    0.0f,   1.0f,   1.0f,   1.0f,   1.0f, // front
-    0.0f,   1.0f,   0.0f,   0.0f,   1.0f,
-    0.0f,   0.0f,   0.0f,   0.0f,   0.0f,
-    0.0f,   0.0f,   0.0f,   0.0f,   0.0f,
-    0.0f,   0.0f,   1.0f,   1.0f,   0.0f,
-    0.0f,   1.0f,   1.0f,   1.0f,   1.0f,
+    0.0f,   1.0f,   1.0f,   1.0f,   1.0f, 0.0f, // front
+    0.0f,   1.0f,   0.0f,   0.0f,   1.0f, 0.0f,
+    0.0f,   0.0f,   0.0f,   0.0f,   0.0f, 0.0f,
+    0.0f,   0.0f,   0.0f,   0.0f,   0.0f, 0.0f,
+    0.0f,   0.0f,   1.0f,   1.0f,   0.0f, 0.0f,
+    0.0f,   1.0f,   1.0f,   1.0f,   1.0f, 0.0f,
 
-    1.0f,   1.0f,   1.0f,   0.0f,   1.0f, // back
-    1.0f,   1.0f,   0.0f,   1.0f,   1.0f,
-    1.0f,   0.0f,   0.0f,   1.0f,   0.0f,
-    1.0f,   0.0f,   0.0f,   1.0f,   0.0f,
-    1.0f,   0.0f,   1.0f,   0.0f,   0.0f,
-    1.0f,   1.0f,   1.0f,   0.0f,   1.0f,
+    1.0f,   1.0f,   1.0f,   0.0f,   1.0f, 0.0f, // back
+    1.0f,   1.0f,   0.0f,   1.0f,   1.0f, 0.0f,
+    1.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f,
+    1.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f,
+    1.0f,   0.0f,   1.0f,   0.0f,   0.0f, 0.0f,
+    1.0f,   1.0f,   1.0f,   0.0f,   1.0f, 0.0f,
 
-    0.0f,   0.0f,   0.0f,   0.0f,   0.0f, // down
-    1.0f,   0.0f,   0.0f,   1.0f,   0.0f,
-    1.0f,   0.0f,   1.0f,   1.0f,   1.0f,
-    1.0f,   0.0f,   1.0f,   1.0f,   1.0f,
-    0.0f,   0.0f,   1.0f,   0.0f,   1.0f,
-    0.0f,   0.0f,   0.0f,   0.0f,   0.0f,
+    0.0f,   0.0f,   0.0f,   0.0f,   0.0f, 1.0f, // down
+    1.0f,   0.0f,   0.0f,   1.0f,   0.0f, 1.0f,
+    1.0f,   0.0f,   1.0f,   1.0f,   1.0f, 1.0f,
+    1.0f,   0.0f,   1.0f,   1.0f,   1.0f, 1.0f,
+    0.0f,   0.0f,   1.0f,   0.0f,   1.0f, 1.0f,
+    0.0f,   0.0f,   0.0f,   0.0f,   0.0f, 1.0f,
 
-    0.0f,   1.0f,   0.0f,   0.0f,   1.0f, // up
-    1.0f,   1.0f,   0.0f,   1.0f,   1.0f,
-    1.0f,   1.0f,   1.0f,   1.0f,   0.0f,
-    1.0f,   1.0f,   1.0f,   1.0f,   0.0f,
-    0.0f,   1.0f,   1.0f,   0.0f,   0.0f,
-    0.0f,   1.0f,   0.0f,   0.0f,   1.0f,
+    0.0f,   1.0f,   0.0f,   0.0f,   1.0f, 2.0f, // up
+    1.0f,   1.0f,   0.0f,   1.0f,   1.0f, 2.0f,
+    1.0f,   1.0f,   1.0f,   1.0f,   0.0f, 2.0f,
+    1.0f,   1.0f,   1.0f,   1.0f,   0.0f, 2.0f,
+    0.0f,   1.0f,   1.0f,   0.0f,   0.0f, 2.0f,
+    0.0f,   1.0f,   0.0f,   0.0f,   1.0f, 2.0f,
     };
 
     set_data();
@@ -152,14 +152,17 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     // texture attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
     unsigned int texture;
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(5 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     // set the texture wrapping parameters
