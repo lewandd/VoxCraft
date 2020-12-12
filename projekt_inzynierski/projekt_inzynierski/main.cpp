@@ -159,33 +159,56 @@ int main()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    unsigned int texture;
     glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(5 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    // load image, create texture and generate mipmaps
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char* data = stbi_load("textures/swhite.png", &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
+    unsigned int texture;
+    glGenTextures(1, &texture); 
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
 
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+
+
+    int width, height, nrChannels;
+    int textures = 5;
+    unsigned char** data = new unsigned char*[textures*3];
+    stbi_set_flip_vertically_on_load(true);
+    for (int i = 0; i < textures; i ++) {
+        string src = "textures/" + to_string(i) + "s.png";
+        data[3*i] = stbi_load(src.c_str(), &width, &height, &nrChannels, 0);
+        src = "textures/" + to_string(i) + "d.png";
+        data[3*i + 1] = stbi_load(src.c_str(), &width, &height, &nrChannels, 0);
+        src = "textures/" + to_string(i) + "u.png";
+        data[3*i + 2] = stbi_load(src.c_str(), &width, &height, &nrChannels, 0);
+    }
+    
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, width, height, textures * 3, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    
+    for (int i = 0; i < textures*3; i++) {
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, data[i]);
+    }
+
+    glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+
+    // connect texture to sampler in fragmentshader
+    int texLoc = glGetUniformLocation(shader.ID, "tex");
+    glUniform1i(texLoc, 0);
+
+    int layerLoc= glGetUniformLocation(shader.ID, "layer");
+    glUniform1i(layerLoc, 0);
+
+    glActiveTexture(GL_TEXTURE0);
+
+    for (int i = 0; i < textures * 3; i++) {
+        stbi_image_free(data[i]);
+    }
+    
     // unbind VBO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -237,6 +260,8 @@ int main()
             // draw triangle
             shader.use();
             glBindVertexArray(VAO);
+
+            glUniform1i(layerLoc, 3 * (o.fullBlocks[i]->getType() - 1));
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         
@@ -298,7 +323,7 @@ int main()
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f))));
 
-        glDrawArrays(GL_LINES, 0, 36);      
+        glDrawArrays(GL_LINES, 0, 36);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
