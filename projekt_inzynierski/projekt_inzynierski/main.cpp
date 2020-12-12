@@ -11,6 +11,7 @@
 #include "shader_s.h"
 #include "data_sets.h"
 #include "octree.h"
+#include "perlin.h"
 #include <iostream>
 #include <vector>
 #include <cmath>
