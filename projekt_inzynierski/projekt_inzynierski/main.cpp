@@ -40,6 +40,8 @@ Octree o;
 // wybrana ściana bloku
 int side = 0;
 
+int choosedType = 0;
+
 int main()
 {
     // glfw: initialize and configure
@@ -319,6 +321,21 @@ void processInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+        choosedType = 0;
+
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+        choosedType = 1;
+
+    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
+        choosedType = 2;
+
+    if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
+        choosedType = 3;
+
+    if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS)
+        choosedType = 4;
+
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -351,19 +368,19 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         if (o.existSelected()) {
             if (side == 1) {
-                o.add(o.selected_x - 1, o.selected_y, o.selected_z, 1);
+                o.add(o.selected_x - 1, o.selected_y, o.selected_z, choosedType+1);
             }
             if (side == 2)
-                o.add(o.selected_x + 1, o.selected_y, o.selected_z, 1);
+                o.add(o.selected_x + 1, o.selected_y, o.selected_z, choosedType+1);
             if (side == 3){
-                o.add(o.selected_x, o.selected_y-1, o.selected_z, 1);
+                o.add(o.selected_x, o.selected_y-1, o.selected_z, choosedType+1);
              }
             if (side == 4)
-                o.add(o.selected_x, o.selected_y+1, o.selected_z, 1);
+                o.add(o.selected_x, o.selected_y+1, o.selected_z, choosedType+1);
             if (side == 5)
-                o.add(o.selected_x, o.selected_y, o.selected_z-1, 1);
+                o.add(o.selected_x, o.selected_y, o.selected_z-1, choosedType+1);
             if (side == 6)
-                o.add(o.selected_x, o.selected_y, o.selected_z+1, 1);
+                o.add(o.selected_x, o.selected_y, o.selected_z+1, choosedType+1);
         }
     }
 }
