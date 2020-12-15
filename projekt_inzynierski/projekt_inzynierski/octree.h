@@ -46,6 +46,47 @@ public:
         merge(x, y, z);
     }
 
+    void setFullBlock(int x, int y, int z, int type, int target_level) {
+        if (getBlock(x, y, z)->isFull()) {
+            printf("WARNING (add): block already exist (%d, %d, %d)\n", x, y, z);
+            return;
+        }
+        if (type == 0) {
+            printf("WARNING (add): block with type = 0 (%d, %d, %d)\n", x, y, z);
+            return;
+        }
+
+        OctreeNode* target = root;
+        OctreeNode* tmp = root;
+        int level = 0;
+        int ind;
+
+        while (tmp != NULL) {
+            target = tmp;
+            target->size += 1 << ((MAX_LEVEL - target_level) * 3);
+            ind = target->getChildInd(x, y, z);
+            tmp = target->getChild(ind);
+            level++;
+        }
+
+        if (level > target_level) {
+            printf("WARNING (add): full block exist (%d, %d, %d)\n", x, y, z);
+            return;
+        }
+
+        while (level <= target_level) {
+            target = target->setChild(ind);
+            target->size += 1 << ((MAX_LEVEL - target_level) * 3);
+
+            ind = target->getChildInd(x, y, z);
+            level++;
+        }
+
+        target->setFull(type);
+        addToFullBlocks(target);
+
+    }
+
     void remove(int x, int y, int z) {
         vector <OctreeNode*> blocks = getBlocks(x, y, z);
         if (!blocks.back()->isFull()) {
