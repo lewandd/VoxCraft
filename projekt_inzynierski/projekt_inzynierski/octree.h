@@ -118,7 +118,7 @@ public:
         OctreeNode* tmp = root;
         int level = 0;
         int ind;
-        unsigned int offset = 1 << 7;
+        unsigned int offset = 1 << (MAX_LEVEL - 1);
 
         while (tmp != NULL) {
             target = tmp;
@@ -168,7 +168,7 @@ private:
         OctreeNode* target = root;
         OctreeNode* tmp = root;
         int level = target->level;
-        int offset = 1 << 7;
+        int offset = 1 << (MAX_LEVEL - 1);
 
         vector <OctreeNode*> blocksList = getBlocks(x, y, z);
         for (int i = blocksList.size() - 1; i >= 0; --i) {
@@ -192,7 +192,7 @@ private:
         OctreeNode* tmp = root;
         int level = 0;
         int ind;
-        unsigned int offset = 1 << 7;
+        unsigned int offset = 1 << (MAX_LEVEL - 1);
 
         while (tmp != NULL) {
             target = tmp;

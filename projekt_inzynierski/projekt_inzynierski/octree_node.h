@@ -101,7 +101,7 @@ public:
     }
 
     TRI_ARGS intoTRI_ARGS() {
-        return TRI_ARGS((float)x, (float)y, (float)z, (float) (1 << (8 - level)), type);
+        return TRI_ARGS((float)x, (float)y, (float)z, (float) (1 << (MAX_LEVEL - level)), type);
     }
 
     bool mergeUpdateType() {
