@@ -155,7 +155,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
-    <ClInclude Include="data_sets.h" />
     <ClInclude Include="perlin.h" />
     <ClInclude Include="octree.h" />
     <ClInclude Include="octree_node.h" />

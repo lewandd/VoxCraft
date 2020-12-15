@@ -9,7 +9,6 @@
 
 #include "camera.h"
 #include "shader_s.h"
-#include "data_sets.h"
 #include "octree.h"
 #include "perlin.h"
 #include <iostream>
@@ -129,18 +128,7 @@ int main()
     0.0f,   1.0f,   0.0f,   0.0f,   1.0f, 2.0f,
     };
 
-    set_data();
 
-    for (int scale = 0; scale < 9; ++scale) {
-        for (int i = 0; i < (int)c[scale].size(); ++i) {
-            // dodanie bloku
-            for (int j = 0; j < (1 << scale); ++j)
-                for (int k = 0; k < (1 << scale); ++k)
-                    for (int l = 0; l < (1 << scale); ++l) {
-                        o.add((int)c[scale][i][0] + j, (int)c[scale][i][1] + k, (int)c[scale][i][2] + l, 1);
-                    }
-        }
-    }
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
