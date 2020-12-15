@@ -237,6 +237,13 @@ int main()
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         
         for (int i = 0; i < (int)o.fullBlocks.size(); ++i) {
+            float dx = (camera.Position.x - o.fullBlocks[i]->x);
+            float dy = (camera.Position.y - o.fullBlocks[i]->y);
+            float dz = (camera.Position.z - o.fullBlocks[i]->z);
+
+            if (dx * dx + dy * dy + dz * dz >= 10000.0f)
+                continue;
+
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, glm::vec3(o.fullBlocks[i]->x, o.fullBlocks[i]->y, o.fullBlocks[i]->z));
             float scale = o.fullBlocks[i]->intoTRI_ARGS().scale;
