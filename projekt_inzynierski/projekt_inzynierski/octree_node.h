@@ -1,21 +1,21 @@
 #pragma once
 using namespace std;
 
-const int MAX_LEVEL = 8;
+const int MAX_LEVEL = 6;
 const int MAX_DIM_SIZE = 1 << MAX_LEVEL;
 const int MAX_SIZE = MAX_DIM_SIZE * MAX_DIM_SIZE * MAX_DIM_SIZE;
 const int MAX_CHILD = 8;
 
 const int DIM_SIZE[] = {
-    256, // level 0
-    128, // level 1
-    64,  // level 2
-    32,  // level 3
-    16,  // level 4
-    8,   // level 5
-    4,   // level 6
-    2,   // level 7
-    1    // level 8
+    //256, // MAX_LEVEL - 8
+    //128, // MAX_LEVEL - 7 
+    64,  // MAX_LEVEL - 6
+    32,  // MAX_LEVEL - 5
+    16,  // MAX_LEVEL - 4
+    8,   // MAX_LEVEL - 3
+    4,   // MAX_LEVEL - 2
+    2,   // MAX_LEVEL - 1
+    1    // MAX_LEVEL
 };
 
 struct TRI_ARGS {
