@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 
 const float M_PI = 3.14159265358979323846f;
 
@@ -22,7 +23,10 @@ private:
     int size; // rozmiar pola
     int grid_size; // rozmiar kratki z siatki
     int grid_count; // liczba kratek w siatce
+    float** all;
     vec** grid = NULL; // siatka wektorów
+    float*** minMap = NULL;
+    float*** maxMap = NULL;
 
     vec randVec() {
         float x = 0, y = 0;
@@ -52,6 +56,49 @@ private:
     }
 
 public:
+    float*** getMinMap() {
+        if (minMap == NULL)
+            setMinMaxMap();
+        return minMap;
+    }
+
+    float*** getMaxMap() {
+        if (maxMap == NULL)
+            setMinMaxMap();
+        return maxMap;
+    }
+
+    void setMinMaxMap() {
+        for (int i = 0; i < MAX_DIM_SIZE/16; i += 1) {
+            for (int j = 0; j < MAX_DIM_SIZE/16; j += 1) {
+                recSetMinMaxMap(i, j, 0, 0, 4);
+            }
+        }
+    }
+
+    pair<float, float> recSetMinMaxMap(int x0, int y0, int x, int y, int lvl) {
+        int map_x = (x0 << (4 - lvl)) + x;
+        int map_y = (y0 << (4 - lvl)) + y;
+        if (lvl > 0) {
+            minMap[lvl][map_x][map_y] = 1.0f;
+            maxMap[lvl][map_x][map_y] = 0.0f;
+
+            for (int i = 0; i < 2; ++i) {
+                for (int j = 0; j < 2; ++j) {
+                    pair<float, float> new_pair = recSetMinMaxMap(x0, y0, x*2 + i, y*2 + j, lvl - 1);
+                    minMap[lvl][map_x][map_y] = min(minMap[lvl][map_x][map_y], new_pair.first);
+                    maxMap[lvl][map_x][map_y] = max(maxMap[lvl][map_x][map_y], new_pair.second);
+                }
+            }
+            return pair<float, float> (minMap[lvl][map_x][map_y], maxMap[lvl][map_x][map_y]);
+        }
+        else {
+            minMap[lvl][map_x][map_y] = all[map_x][map_y];
+            maxMap[lvl][map_x][map_y] = all[map_x][map_y];
+
+            return pair<float, float>(minMap[lvl][map_x][map_y], maxMap[lvl][map_x][map_y]);
+        }
+    }
 
     Perlin(int _field_size, int _grid_size, int _vec_type) {
         seed = 0;
@@ -64,6 +111,20 @@ public:
         grid = new vec * [grid_count];
         for (int i = 0; i < grid_count; ++i)
             grid[i] = new vec[grid_count];
+
+        // minMap, maxMap allocation
+        minMap = new float** [5];
+        maxMap = new float** [5];
+
+        for (int i = 0; i < 5; ++i) {
+            minMap[i] = new float* [MAX_DIM_SIZE >> i];
+            maxMap[i] = new float* [MAX_DIM_SIZE >> i];
+
+            for (int j = 0; j < MAX_DIM_SIZE >> i; ++j) {
+                minMap[i][j] = new float[MAX_DIM_SIZE >> i];
+                maxMap[i][j] = new float[MAX_DIM_SIZE >> i];
+            }
+        }
     }
 
 
@@ -87,7 +148,7 @@ public:
     };
 
     float** getAll() {
-        float** all = new float* [size];
+        all = new float* [size];
         for (int i = 0; i < size; ++i)
             all[i] = new float[size];
 
