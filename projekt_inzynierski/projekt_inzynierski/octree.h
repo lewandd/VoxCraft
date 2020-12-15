@@ -10,6 +10,21 @@ public:
     OctreeNode* selected = NULL;
     int selected_x, selected_y, selected_z;
 
+    void addMinMap(float ***minMap, int lvl, int x, int y, int z, int type, int z0) {
+        if (lvl >= 0) {
+            if (minMap[lvl][x][y]*16 >= (1 << lvl)+z) {
+                setFullBlock(x<<lvl, z0+z, y << lvl, type, MAX_LEVEL-lvl);
+                addMinMap(minMap, lvl, x, y, z + (1<<lvl), type, z0);
+            }
+            else {
+                addMinMap(minMap, lvl - 1, (x << 1), (y << 1), z, type, z0);
+                addMinMap(minMap, lvl - 1, (x << 1), (y << 1)+1, z, type, z0);
+                addMinMap(minMap, lvl - 1, (x << 1)+1, (y << 1), z, type, z0);
+                addMinMap(minMap, lvl - 1, (x << 1)+1, (y << 1)+1, z, type, z0);
+            }
+        }
+    }
+
     void add(int x, int y, int z, int type) {
         if (getBlock(x, y, z)->isFull()) {
             printf("WARNING (add): block already exist (%d, %d, %d)\n", x, y, z);
