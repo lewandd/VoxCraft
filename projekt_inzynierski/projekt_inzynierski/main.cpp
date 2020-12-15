@@ -14,11 +14,13 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <algorithm>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void processInput(GLFWwindow* window);
+void generate_data(Octree &o);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -129,7 +131,9 @@ int main()
     1.0f,   1.0f,   1.0f,   1.0f,   0.0f, 2.0f,
     };
 
+    // generate data
 
+    generate_data(o);
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -338,6 +342,57 @@ int main()
     // ------------------------------------------------------------------
     glfwTerminate();
     return 0;
+}
+
+void generate_data(Octree &o) {
+    // stone layer
+    for (int x = 0; x < MAX_DIM_SIZE; x += 16) {
+        for (int y = 0; y < MAX_DIM_SIZE; y += 16) {
+            o.setFullBlock(x, 0, y, 3, MAX_LEVEL - 4);
+        }
+    }
+
+    // stone top layer
+    Perlin p(MAX_DIM_SIZE, 32, 1);
+    
+    cout << MAX_DIM_SIZE << endl;
+    p.setSeed(1);
+    float** hMap = p.getAll();
+    p.setMinMaxMap();
+    float*** minMap = p.getMinMap();
+    float*** maxMap = p.getMaxMap();
+
+    for (int i = 0; i < MAX_DIM_SIZE/16; ++i) {
+        for (int j = 0; j < MAX_DIM_SIZE/16; ++j) {
+            o.addMinMap(minMap, 4, i, j, 0, 3, 16);
+        }
+    }
+
+    // dirt top layer
+    for (int i = 0; i < MAX_DIM_SIZE / 2; ++i) {
+        for (int j = 0; j < MAX_DIM_SIZE / 2; ++j) {
+            if (((int)(16*minMap[1][i][j]) == (int)(16*maxMap[1][i][j])) && ((int)(16 * minMap[1][i][j]) % 2 == 0)) {
+                o.setFullBlock(i * 2, (int)(maxMap[1][i][j]*16) + 16, j*2, 2, MAX_LEVEL - 1);
+            }
+            else {
+                o.setFullBlock(i * 2, (int)(hMap[2*i][2*j] * 16) + 16, j * 2, 2, MAX_LEVEL);
+                o.setFullBlock(i * 2, (int)(hMap[2*i][2*j] * 16) + 17, j * 2, 2, MAX_LEVEL);
+
+                o.setFullBlock(i * 2, (int)(hMap[2*i][2*j+1] * 16) + 16, j * 2+1, 2, MAX_LEVEL);
+                o.setFullBlock(i * 2, (int)(hMap[2*i][2*j+1] * 16) + 17, j * 2+1, 2, MAX_LEVEL);
+
+                o.setFullBlock(i * 2+1, (int)(hMap[2*i+1][2*j] * 16) + 16, j * 2, 2, MAX_LEVEL);
+                o.setFullBlock(i * 2+1, (int)(hMap[2*i+1][2*j] * 16) + 17, j * 2, 2, MAX_LEVEL);
+
+                o.setFullBlock(i * 2+1, (int)(hMap[2*i+1][2*j+1] * 16) + 16, j * 2+1, 2, MAX_LEVEL);
+                o.setFullBlock(i * 2+1, (int)(hMap[2*i+1][2*j+1] * 16) + 17, j * 2+1, 2, MAX_LEVEL);
+            }
+            o.setFullBlock(i * 2, (int)(hMap[2 * i][2 * j] * 16) + 18, j * 2, 1, MAX_LEVEL);
+            o.setFullBlock(i * 2+1, (int)(hMap[2 * i+1][2 * j] * 16) + 18, j * 2, 1, MAX_LEVEL);
+            o.setFullBlock(i * 2, (int)(hMap[2 * i][2 * j+1] * 16) + 18, j * 2+1, 1, MAX_LEVEL);
+            o.setFullBlock(i * 2+1, (int)(hMap[2 * i+1][2 * j+1] * 16) + 18, j * 2+1, 1, MAX_LEVEL);
+        }
+    }
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
