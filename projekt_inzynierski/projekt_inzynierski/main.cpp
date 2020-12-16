@@ -362,8 +362,8 @@ void generate_data(Octree &o) {
     float*** minMap = p.getMinMap();
     float*** maxMap = p.getMaxMap();
 
-    for (int i = 0; i < MAX_DIM_SIZE/16; ++i) {
-        for (int j = 0; j < MAX_DIM_SIZE/16; ++j) {
+    for (int i = 0; i < MAX_DIM_SIZE / 16; ++i) {
+        for (int j = 0; j < MAX_DIM_SIZE / 16; ++j) {
             o.addMinMap(minMap, 4, i, j, 0, 3, 16);
         }
     }
@@ -371,26 +371,26 @@ void generate_data(Octree &o) {
     // dirt top layer
     for (int i = 0; i < MAX_DIM_SIZE / 2; ++i) {
         for (int j = 0; j < MAX_DIM_SIZE / 2; ++j) {
-            if (((int)(16*minMap[1][i][j]) == (int)(16*maxMap[1][i][j])) && ((int)(16 * minMap[1][i][j]) % 2 == 0)) {
-                o.setFullBlock(i * 2, (int)(maxMap[1][i][j]*16) + 16, j*2, 2, MAX_LEVEL - 1);
+            if (((int)(16 * minMap[1][i][j]) == (int)(16 * maxMap[1][i][j])) && ((int)(16 * minMap[1][i][j]) % 2 == 0)) {
+                o.setFullBlock(i * 2, (int)(maxMap[1][i][j] * 16) + 16, j * 2, 2, MAX_LEVEL - 1);
             }
             else {
-                o.setFullBlock(i * 2, (int)(hMap[2*i][2*j] * 16) + 16, j * 2, 2, MAX_LEVEL);
-                o.setFullBlock(i * 2, (int)(hMap[2*i][2*j] * 16) + 17, j * 2, 2, MAX_LEVEL);
+                o.setFullBlock(i * 2, (int)(hMap[2 * i][2 * j] * 16) + 16, j * 2, 2, MAX_LEVEL);
+                o.setFullBlock(i * 2, (int)(hMap[2 * i][2 * j] * 16) + 17, j * 2, 2, MAX_LEVEL);
 
-                o.setFullBlock(i * 2, (int)(hMap[2*i][2*j+1] * 16) + 16, j * 2+1, 2, MAX_LEVEL);
-                o.setFullBlock(i * 2, (int)(hMap[2*i][2*j+1] * 16) + 17, j * 2+1, 2, MAX_LEVEL);
+                o.setFullBlock(i * 2, (int)(hMap[2 * i][2 * j + 1] * 16) + 16, j * 2 + 1, 2, MAX_LEVEL);
+                o.setFullBlock(i * 2, (int)(hMap[2 * i][2 * j + 1] * 16) + 17, j * 2 + 1, 2, MAX_LEVEL);
 
-                o.setFullBlock(i * 2+1, (int)(hMap[2*i+1][2*j] * 16) + 16, j * 2, 2, MAX_LEVEL);
-                o.setFullBlock(i * 2+1, (int)(hMap[2*i+1][2*j] * 16) + 17, j * 2, 2, MAX_LEVEL);
+                o.setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j] * 16) + 16, j * 2, 2, MAX_LEVEL);
+                o.setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j] * 16) + 17, j * 2, 2, MAX_LEVEL);
 
-                o.setFullBlock(i * 2+1, (int)(hMap[2*i+1][2*j+1] * 16) + 16, j * 2+1, 2, MAX_LEVEL);
-                o.setFullBlock(i * 2+1, (int)(hMap[2*i+1][2*j+1] * 16) + 17, j * 2+1, 2, MAX_LEVEL);
+                o.setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j + 1] * 16) + 16, j * 2 + 1, 2, MAX_LEVEL);
+                o.setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j + 1] * 16) + 17, j * 2 + 1, 2, MAX_LEVEL);
             }
             o.setFullBlock(i * 2, (int)(hMap[2 * i][2 * j] * 16) + 18, j * 2, 1, MAX_LEVEL);
-            o.setFullBlock(i * 2+1, (int)(hMap[2 * i+1][2 * j] * 16) + 18, j * 2, 1, MAX_LEVEL);
-            o.setFullBlock(i * 2, (int)(hMap[2 * i][2 * j+1] * 16) + 18, j * 2+1, 1, MAX_LEVEL);
-            o.setFullBlock(i * 2+1, (int)(hMap[2 * i+1][2 * j+1] * 16) + 18, j * 2+1, 1, MAX_LEVEL);
+            o.setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j] * 16) + 18, j * 2, 1, MAX_LEVEL);
+            o.setFullBlock(i * 2, (int)(hMap[2 * i][2 * j + 1] * 16) + 18, j * 2 + 1, 1, MAX_LEVEL);
+            o.setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j + 1] * 16) + 18, j * 2 + 1, 1, MAX_LEVEL);
         }
     }
 }
