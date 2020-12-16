@@ -20,12 +20,13 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void processInput(GLFWwindow* window);
-void generate_data(Octree &o);
 
 struct CHUNK {
 public:
     Octree* o[8];
 };
+
+CHUNK* generate_chunk(int x, int y);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -41,8 +42,7 @@ bool firstMouse = true;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
-// octree
-Octree o;
+Octree* selectedOctree = NULL;
 
 // wybrana ściana bloku
 int side = 0;
@@ -140,7 +140,10 @@ int main()
 
     // generate data
 
-    generate_data(o);
+    generate_chunk(0, 0);
+    generate_chunk(0, 1);
+    generate_chunk(1, 0);
+    generate_chunk(1, 1);
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -259,33 +262,56 @@ int main()
             for (int tt = 0; tt < 5; ++tt) {
                 glUniform1i(layerLoc, 3 * tt);
 
-                for (int i = 0; i < (int)o.fullBlocks[lvl][tt].size(); ++i) {
-                    float dx = (camera.Position.x - o.fullBlocks[lvl][tt][i]->x);
-                    float dy = (camera.Position.y - o.fullBlocks[lvl][tt][i]->y);
-                    float dz = (camera.Position.z - o.fullBlocks[lvl][tt][i]->z);
+                for (int chx = 0; chx < 200; ++chx) {
+                    for (int chy = 0; chy < 200; ++chy) {
+                        CHUNK* ch = chunk[chx][chy];
+                        float cdx = camera.Position.x - (chx * 16.0 + 8.0);
+                        float cdy = camera.Position.z - (chy * 16.0 + 8.0);
+                        if (cdx * cdx + cdy * cdy < 1600.0) {
+                            if (ch == NULL)
+                                ch = generate_chunk(chx, chy);
 
-                    if (dx * dx + dy * dy + dz * dz >= 10000.0f)
-                        continue;
+                            for (int chz = 0; chz < 8; ++chz) {
+                                Octree* cho = ch->o[chz];
+                                if (cho != NULL) {
+                                    vector <OctreeNode*> cubes = cho->fullBlocks[lvl][tt];
+                                    for (int i = 0; i < (int)cubes.size(); ++i) {
+                                        OctreeNode* cube = cubes[i];
+                                        float dx = (camera.Position.x - (chx * 16.0 + cube->x));
+                                        float dy = (camera.Position.y - cube->y);
+                                        float dz = (camera.Position.z - (chy * 16.0 + cube->z));
 
-                    model[3][0] = o.fullBlocks[lvl][tt][i]->x;
-                    model[3][1] = o.fullBlocks[lvl][tt][i]->y;
-                    model[3][2] = o.fullBlocks[lvl][tt][i]->z;
-                    
-                    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+                                        if (dx * dx + dy * dy + dz * dz >= 10000.0f)
+                                            continue;
 
-                    if (o.fullBlocks[lvl][tt][i]->isSelected())
-                        glUniform1f(selectedLoc, 0.9f);
+                                        model[3][0] = cube->x + chx * 16;
+                                        model[3][1] = cube->y + chz * 16;
+                                        model[3][2] = cube->z + chy * 16;
 
-                    // draw triangle
-                    glDrawArrays(GL_TRIANGLES, 0, 36);
+                                        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-                    if (o.fullBlocks[lvl][tt][i]->isSelected())
-                        glUniform1f(selectedLoc, 1.0f);
+                                        if (cube->isSelected())
+                                            glUniform1f(selectedLoc, 0.9f);
+
+                                        // draw triangle
+                                        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+                                        if (cube->isSelected())
+                                            glUniform1f(selectedLoc, 1.0f);
+                                    }
+                                }
+                            }
+                        
+                        }
+                    }
                 }
             }
         }
         
-        o.unsetSelected();
+        if (selectedOctree != NULL) {
+            selectedOctree->unsetSelected();
+        }
+        selectedOctree = NULL;
 
         float dep;
         glReadPixels(400, 400, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &dep);
@@ -330,13 +356,35 @@ int main()
             }
 
             //printf("changed (%8.5f, %8.5f, %8.5f) ", lookAt.x, lookAt.y, lookAt.z);
+            
+            int selected_x = (int)(floor(lookAt.x));
+            int selected_y = (int)(floor(lookAt.y));
+            int selected_z = (int)(floor(lookAt.z));
+
+            int chunk_x =  selected_x / 16;
+            int chunk_z = selected_z / 16;
+            int octree_y = selected_y / 16;
+
 
             float line_t = 0.007f;
-            if (!((abs(dl.x) < line_t && abs(dl.y) < line_t) || (abs(dl.x) < line_t && abs(dl.z) < line_t) || (abs(dl.y) < line_t && abs(dl.z) < line_t)))
-                o.setSelected((int)floor(lookAt.x), (int)floor(lookAt.y), (int)floor(lookAt.z));
-        }
+            if (!((abs(dl.x) < line_t && abs(dl.y) < line_t) || (abs(dl.x) < line_t && abs(dl.z) < line_t) || (abs(dl.y) < line_t && abs(dl.z) < line_t))) {
 
-        //printf("%5.1f noticed (%2d, %2d, %2d) \n", z, o.selected_x, o.selected_y, o.selected_z);
+                if (chunk_x < 200 && chunk_z < 200 && chunk_x >= 0 && chunk_z >= 0) {
+                    CHUNK* ch = chunk[chunk_x][chunk_z];
+                    if (ch != NULL) {
+                        if (octree_y < 8 && octree_y >= 0) {
+                            Octree* cho = ch->o[octree_y];
+                            if (cho != NULL) {
+                                selectedOctree = cho;
+                                cho->setSelected(selected_x % 16, selected_y % 16, selected_z % 16);
+                            }
+                        }
+                    }
+                }
+            }
+
+            //printf("%5.1f noticed (%2d, %2d, %2d) \n", z, selected_x, selected_y, selected_z);
+        }
 
         // tymczasowy wskaźnik środka
 
@@ -364,55 +412,53 @@ int main()
     return 0;
 }
 
-void generate_data(Octree &o) {
+CHUNK* generate_chunk(int x, int y) {
+    chunk[x][y] = new CHUNK();
+    CHUNK* ch = chunk[x][y];
+    Octree** cho = ch->o;
+    
     // stone layer
-    for (int x = 0; x < MAX_DIM_SIZE; x += 16) {
-        for (int y = 0; y < MAX_DIM_SIZE; y += 16) {
-            o.setFullBlock(x, 0, y, 3, MAX_LEVEL - 4);
-        }
-    }
+    cho[0] = new Octree();
+    cho[0]->setFullBlock(0, 0, 0, 3, MAX_LEVEL - 4);
 
     // stone top layer
-    Perlin p(MAX_DIM_SIZE, 32, 1);
-    
-    cout << MAX_DIM_SIZE << endl;
+    Perlin p(16, 32, 1);
     p.setSeed(1);
     float** hMap = p.getAll();
     p.setMinMaxMap();
     float*** minMap = p.getMinMap();
     float*** maxMap = p.getMaxMap();
 
-    for (int i = 0; i < MAX_DIM_SIZE / 16; ++i) {
-        for (int j = 0; j < MAX_DIM_SIZE / 16; ++j) {
-            o.addMinMap(minMap, 4, i, j, 0, 3, 16);
-        }
-    }
+    cho[1] = new Octree();
+    cho[1]->addMinMap(minMap, 4, 0, 0, 0, 3, 0);
 
     // dirt top layer
     for (int i = 0; i < MAX_DIM_SIZE / 2; ++i) {
         for (int j = 0; j < MAX_DIM_SIZE / 2; ++j) {
             if (((int)(16 * minMap[1][i][j]) == (int)(16 * maxMap[1][i][j])) && ((int)(16 * minMap[1][i][j]) % 2 == 0)) {
-                o.setFullBlock(i * 2, (int)(maxMap[1][i][j] * 16) + 16, j * 2, 2, MAX_LEVEL - 1);
+                cho[1]->setFullBlock(i * 2, (int)(maxMap[1][i][j] * 16) + 16, j * 2, 2, MAX_LEVEL - 1);
             }
             else {
-                o.setFullBlock(i * 2, (int)(hMap[2 * i][2 * j] * 16) + 16, j * 2, 2, MAX_LEVEL);
-                o.setFullBlock(i * 2, (int)(hMap[2 * i][2 * j] * 16) + 17, j * 2, 2, MAX_LEVEL);
+                cho[1]->setFullBlock(i * 2, (int)(hMap[2 * i][2 * j] * 16), j * 2, 2, MAX_LEVEL);
+                cho[1]->setFullBlock(i * 2, (int)(hMap[2 * i][2 * j] * 16) + 1, j * 2, 2, MAX_LEVEL);
 
-                o.setFullBlock(i * 2, (int)(hMap[2 * i][2 * j + 1] * 16) + 16, j * 2 + 1, 2, MAX_LEVEL);
-                o.setFullBlock(i * 2, (int)(hMap[2 * i][2 * j + 1] * 16) + 17, j * 2 + 1, 2, MAX_LEVEL);
+                cho[1]->setFullBlock(i * 2, (int)(hMap[2 * i][2 * j + 1] * 16), j * 2 + 1, 2, MAX_LEVEL);
+                cho[1]->setFullBlock(i * 2, (int)(hMap[2 * i][2 * j + 1] * 16) + 1, j * 2 + 1, 2, MAX_LEVEL);
 
-                o.setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j] * 16) + 16, j * 2, 2, MAX_LEVEL);
-                o.setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j] * 16) + 17, j * 2, 2, MAX_LEVEL);
+                cho[1]->setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j] * 16), j * 2, 2, MAX_LEVEL);
+                cho[1]->setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j] * 16) + 1, j * 2, 2, MAX_LEVEL);
 
-                o.setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j + 1] * 16) + 16, j * 2 + 1, 2, MAX_LEVEL);
-                o.setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j + 1] * 16) + 17, j * 2 + 1, 2, MAX_LEVEL);
+                cho[1]->setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j + 1] * 16), j * 2 + 1, 2, MAX_LEVEL);
+                cho[1]->setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j + 1] * 16) + 1, j * 2 + 1, 2, MAX_LEVEL);
             }
-            o.setFullBlock(i * 2, (int)(hMap[2 * i][2 * j] * 16) + 18, j * 2, 1, MAX_LEVEL);
-            o.setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j] * 16) + 18, j * 2, 1, MAX_LEVEL);
-            o.setFullBlock(i * 2, (int)(hMap[2 * i][2 * j + 1] * 16) + 18, j * 2 + 1, 1, MAX_LEVEL);
-            o.setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j + 1] * 16) + 18, j * 2 + 1, 1, MAX_LEVEL);
+            cho[1]->setFullBlock(i * 2, (int)(hMap[2 * i][2 * j] * 16) + 2, j * 2, 1, MAX_LEVEL);
+            cho[1]->setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j] * 16) + 2, j * 2, 1, MAX_LEVEL);
+            cho[1]->setFullBlock(i * 2, (int)(hMap[2 * i][2 * j + 1] * 16) + 2, j * 2 + 1, 1, MAX_LEVEL);
+            cho[1]->setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j + 1] * 16) + 2, j * 2 + 1, 1, MAX_LEVEL);
         }
     }
+
+    return ch;
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -462,26 +508,28 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        if (o.existSelected())
-            o.remove(o.selected_x, o.selected_y, o.selected_z);
+        if (selectedOctree != NULL)
+            selectedOctree->remove(selectedOctree->selected_x, selectedOctree->selected_y, selectedOctree->selected_z);
     }
 
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-        if (o.existSelected()) {
-            if (side == 1) {
-                o.add(o.selected_x - 1, o.selected_y, o.selected_z, choosedType+1);
+        if (selectedOctree != NULL) {
+            if (selectedOctree->existSelected()) {
+                if (side == 1) {
+                    selectedOctree->add(selectedOctree->selected_x - 1, selectedOctree->selected_y, selectedOctree->selected_z, choosedType + 1);
+                }
+                if (side == 2)
+                    selectedOctree->add(selectedOctree->selected_x + 1, selectedOctree->selected_y, selectedOctree->selected_z, choosedType + 1);
+                if (side == 3) {
+                    selectedOctree->add(selectedOctree->selected_x, selectedOctree->selected_y - 1, selectedOctree->selected_z, choosedType + 1);
+                }
+                if (side == 4)
+                    selectedOctree->add(selectedOctree->selected_x, selectedOctree->selected_y + 1, selectedOctree->selected_z, choosedType + 1);
+                if (side == 5)
+                    selectedOctree->add(selectedOctree->selected_x, selectedOctree->selected_y, selectedOctree->selected_z - 1, choosedType + 1);
+                if (side == 6)
+                    selectedOctree->add(selectedOctree->selected_x, selectedOctree->selected_y, selectedOctree->selected_z + 1, choosedType + 1);
             }
-            if (side == 2)
-                o.add(o.selected_x + 1, o.selected_y, o.selected_z, choosedType+1);
-            if (side == 3){
-                o.add(o.selected_x, o.selected_y-1, o.selected_z, choosedType+1);
-             }
-            if (side == 4)
-                o.add(o.selected_x, o.selected_y+1, o.selected_z, choosedType+1);
-            if (side == 5)
-                o.add(o.selected_x, o.selected_y, o.selected_z-1, choosedType+1);
-            if (side == 6)
-                o.add(o.selected_x, o.selected_y, o.selected_z+1, choosedType+1);
         }
     }
 }
