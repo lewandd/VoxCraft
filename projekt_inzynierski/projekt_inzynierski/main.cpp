@@ -267,7 +267,7 @@ int main()
                         CHUNK* ch = chunk[chx][chy];
                         float cdx = camera.Position.x - (chx * 16.0 + 8.0);
                         float cdy = camera.Position.z - (chy * 16.0 + 8.0);
-                        if (cdx * cdx + cdy * cdy < 1600.0) {
+                        if (cdx * cdx + cdy * cdy < 3200.0) {
                             if (ch == NULL)
                                 ch = generate_chunk(chx, chy);
 
