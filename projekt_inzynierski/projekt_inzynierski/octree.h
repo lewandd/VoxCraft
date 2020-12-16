@@ -6,7 +6,7 @@ class Octree {
 
 public:
     OctreeNode* root = new OctreeNode(0, 0, 0, 0, 0);
-    vector <OctreeNode*> fullBlocks;
+    vector <OctreeNode*> fullBlocks[MAX_LEVEL+1][5];
     OctreeNode* selected = NULL;
     int selected_x, selected_y, selected_z;
 
@@ -215,14 +215,14 @@ public:
 
 private:
     void addToFullBlocks(OctreeNode* n) {
-        fullBlocks.push_back(n);
-        n->ind = fullBlocks.size() - 1;
+        fullBlocks[n->getLevel()][n->getType()-1].push_back(n);
+        n->ind = fullBlocks[n->getLevel()][n->getType()-1].size() - 1;
     }
 
     void deleteFromFullBlocks(OctreeNode* n) {
-        fullBlocks.back()->ind = n->ind;
-        fullBlocks[n->ind] = fullBlocks.back();
-        fullBlocks.pop_back();
+        fullBlocks[n->getLevel()][n->getType()-1].back()->ind = n->ind;
+        fullBlocks[n->getLevel()][n->getType()-1][n->ind] = fullBlocks[n->getLevel()][n->getType()-1].back();
+        fullBlocks[n->getLevel()][n->getType()-1].pop_back();
         n->ind = -1;
     }
 

@@ -239,32 +239,43 @@ int main()
 
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        glUniform1f(selectedLoc, 1.0f);
         
-        for (int i = 0; i < (int)o.fullBlocks.size(); ++i) {
-            float dx = (camera.Position.x - o.fullBlocks[i]->x);
-            float dy = (camera.Position.y - o.fullBlocks[i]->y);
-            float dz = (camera.Position.z - o.fullBlocks[i]->z);
+        shader.use();
+        glBindVertexArray(VAO);
 
-            if (dx * dx + dy * dy + dz * dz >= 10000.0f)
-                continue;
+        glm::mat4 model(1.0f);
 
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(o.fullBlocks[i]->x, o.fullBlocks[i]->y, o.fullBlocks[i]->z));
-            float scale = o.fullBlocks[i]->intoTRI_ARGS().scale;
-            model = glm::scale(model, glm::vec3(o.fullBlocks[i]->intoTRI_ARGS().scale));
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-            glUniform1f(scaleLoc, scale);
-            glUniform1f(selectedLoc, 1.0f);
+        for (int lvl = MAX_LEVEL; lvl >= 0; --lvl) {
+            glUniform1f(scaleLoc, 1 << (MAX_LEVEL - lvl));
 
-            if (o.fullBlocks[i]->isSelected())
-                glUniform1f(selectedLoc, 0.9f);
+            for (int tt = 0; tt < 5; ++tt) {
+                glUniform1i(layerLoc, 3 * tt);
 
-            // draw triangle
-            shader.use();
-            glBindVertexArray(VAO);
+                for (int i = 0; i < (int)o.fullBlocks[lvl][tt].size(); ++i) {
+                    float dx = (camera.Position.x - o.fullBlocks[lvl][tt][i]->x);
+                    float dy = (camera.Position.y - o.fullBlocks[lvl][tt][i]->y);
+                    float dz = (camera.Position.z - o.fullBlocks[lvl][tt][i]->z);
 
-            glUniform1i(layerLoc, 3 * (o.fullBlocks[i]->getType() - 1));
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+                    if (dx * dx + dy * dy + dz * dz >= 10000.0f)
+                        continue;
+
+                    model[3][0] = o.fullBlocks[lvl][tt][i]->x;
+                    model[3][1] = o.fullBlocks[lvl][tt][i]->y;
+                    model[3][2] = o.fullBlocks[lvl][tt][i]->z;
+                    
+                    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+                    if (o.fullBlocks[lvl][tt][i]->isSelected())
+                        glUniform1f(selectedLoc, 0.9f);
+
+                    // draw triangle
+                    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+                    if (o.fullBlocks[lvl][tt][i]->isSelected())
+                        glUniform1f(selectedLoc, 1.0f);
+                }
+            }
         }
         
         o.unsetSelected();
@@ -321,6 +332,8 @@ int main()
         //printf("%5.1f noticed (%2d, %2d, %2d) \n", z, o.selected_x, o.selected_y, o.selected_z);
 
         // tymczasowy wskaźnik środka
+
+        glUniform1f(scaleLoc, 1.0f);
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f))));
