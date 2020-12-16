@@ -422,8 +422,8 @@ CHUNK* generate_chunk(int x, int y) {
     cho[0]->setFullBlock(0, 0, 0, 3, MAX_LEVEL - 4);
 
     // stone top layer
-    Perlin p(16, 32, 1);
-    p.setSeed(1);
+    Perlin p(16, 16, 1);
+    p.setSeed(x, y);
     float** hMap = p.getAll();
     p.setMinMaxMap();
     float*** minMap = p.getMinMap();

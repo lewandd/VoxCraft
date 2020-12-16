@@ -18,7 +18,7 @@ public:
 class Perlin {
 
 private:
-    int seed;
+    int seedx, seedy;
     int vec_type; // typ losowanych wektorow
     int size; // rozmiar pola
     int grid_size; // rozmiar kratki z siatki
@@ -114,12 +114,12 @@ public:
     }
 
     Perlin(int _field_size, int _grid_size, int _vec_type) {
-        seed = 0;
+        seedx = seedy = 0;
 
         size = _field_size;
         grid_size = _grid_size;
         vec_type = _vec_type;
-        grid_count = size / grid_size + 2;
+        grid_count = size / grid_size + 1;
 
         grid = new vec * [grid_count];
         for (int i = 0; i < grid_count; ++i)
@@ -129,19 +129,40 @@ public:
     }
 
 
-    void setSeed(int nseed) {
-        seed = nseed;
+    void setSeed(int _seedx, int _seedy) {
+        seedx = _seedx;
+        seedy = _seedy;
         setGrid();
     }
 
 
     void setGrid() {
-        srand(seed);
-        for (int i = 0; i < grid_count; ++i) {
-            for (int j = 0; j < grid_count; ++j) {
+        srand(200*seedx + seedy);
+        rand();
+        for (int i = 0; i < grid_count-1; ++i) {
+            for (int j = 0; j < grid_count-1; ++j) {
                 grid[i][j] = randVec();
             }
         }
+        
+        srand((seedx+1) * 200 + seedy);
+        rand();
+        for (int i = 0; i < grid_count-1; ++i) {
+            grid[i][grid_count - 1] = randVec();
+            for (int j = 0; j < grid_count - 1; ++j)
+                randVec();
+        }
+        
+        srand((seedx) * 200 + (seedy+1));
+        rand();
+        for (int j = 0; j < grid_count - 1; ++j) {
+            grid[grid_count - 1][j] = randVec();
+        }
+        
+        srand((seedx + 1) * 200 + (seedy + 1));
+        rand();
+        grid[grid_count - 1][grid_count - 1] = randVec();
+        
     }
 
     void setGridSize(int _grid_size) {
