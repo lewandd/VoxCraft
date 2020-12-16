@@ -69,6 +69,19 @@ public:
     }
 
     void setMinMaxMap() {
+        // minMap, maxMap allocation
+        minMap = new float** [5];
+        maxMap = new float** [5];
+
+        for (int i = 0; i < 5; ++i) {
+            minMap[i] = new float* [MAX_DIM_SIZE >> i];
+            maxMap[i] = new float* [MAX_DIM_SIZE >> i];
+
+            for (int j = 0; j < MAX_DIM_SIZE >> i; ++j) {
+                minMap[i][j] = new float[MAX_DIM_SIZE >> i];
+                maxMap[i][j] = new float[MAX_DIM_SIZE >> i];
+            }
+        }
         for (int i = 0; i < MAX_DIM_SIZE/16; i += 1) {
             for (int j = 0; j < MAX_DIM_SIZE/16; j += 1) {
                 recSetMinMaxMap(i, j, 0, 0, 4);
@@ -112,19 +125,7 @@ public:
         for (int i = 0; i < grid_count; ++i)
             grid[i] = new vec[grid_count];
 
-        // minMap, maxMap allocation
-        minMap = new float** [5];
-        maxMap = new float** [5];
 
-        for (int i = 0; i < 5; ++i) {
-            minMap[i] = new float* [MAX_DIM_SIZE >> i];
-            maxMap[i] = new float* [MAX_DIM_SIZE >> i];
-
-            for (int j = 0; j < MAX_DIM_SIZE >> i; ++j) {
-                minMap[i][j] = new float[MAX_DIM_SIZE >> i];
-                maxMap[i][j] = new float[MAX_DIM_SIZE >> i];
-            }
-        }
     }
 
 
