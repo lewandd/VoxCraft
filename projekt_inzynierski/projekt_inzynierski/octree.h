@@ -62,6 +62,12 @@ public:
     }
 
     void setFullBlock(int x, int y, int z, int type, int target_level) {
+        if (target_level == 0) {
+            root->setFull(type);
+            addToFullBlocks(root);
+            return;
+        }
+        
         if (getBlock(x, y, z)->isFull()) {
             printf("WARNING (add): block already exist (%d, %d, %d)\n", x, y, z);
             return;
