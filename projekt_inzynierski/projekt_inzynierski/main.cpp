@@ -22,6 +22,11 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void processInput(GLFWwindow* window);
 void generate_data(Octree &o);
 
+struct CHUNK {
+public:
+    Octree* o[8];
+};
+
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 800;
@@ -43,6 +48,8 @@ Octree o;
 int side = 0;
 
 int choosedType = 0;
+
+CHUNK* chunk[200][200];
 
 int main()
 {
