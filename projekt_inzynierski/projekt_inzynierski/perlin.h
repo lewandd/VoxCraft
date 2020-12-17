@@ -128,6 +128,10 @@ public:
 
     }
 
+    Perlin(float **_all) {
+        all = _all;
+    }
+
 
     void setSeed(int _seedx, int _seedy) {
         seedx = _seedx;
