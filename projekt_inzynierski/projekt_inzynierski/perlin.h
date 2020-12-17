@@ -89,7 +89,7 @@ public:
         }
     }
 
-    pair<float, float> recSetMinMaxMap(int x0, int y0, int x, int y, int lvl) {
+    void recSetMinMaxMap(int x0, int y0, int x, int y, int lvl) {
         int map_x = (x0 << (4 - lvl)) + x;
         int map_y = (y0 << (4 - lvl)) + y;
         if (lvl > 0) {
@@ -98,18 +98,17 @@ public:
 
             for (int i = 0; i < 2; ++i) {
                 for (int j = 0; j < 2; ++j) {
-                    pair<float, float> new_pair = recSetMinMaxMap(x0, y0, x*2 + i, y*2 + j, lvl - 1);
-                    minMap[lvl][map_x][map_y] = min(minMap[lvl][map_x][map_y], new_pair.first);
-                    maxMap[lvl][map_x][map_y] = max(maxMap[lvl][map_x][map_y], new_pair.second);
+                    recSetMinMaxMap(x0, y0, x*2 + i, y*2 + j, lvl - 1);
+                    float newMin = minMap[lvl - 1][(x0 << (4 - (lvl - 1))) + x*2 + i][(y0 << (4 - (lvl - 1))) + y*2 + j];
+                    float newMax = maxMap[lvl - 1][(x0 << (4 - (lvl - 1))) + x*2 + i][(y0 << (4 - (lvl - 1))) + y*2 + j];
+                    minMap[lvl][map_x][map_y] = min(minMap[lvl][map_x][map_y], newMin);
+                    maxMap[lvl][map_x][map_y] = max(maxMap[lvl][map_x][map_y], newMax);
                 }
             }
-            return pair<float, float> (minMap[lvl][map_x][map_y], maxMap[lvl][map_x][map_y]);
         }
         else {
             minMap[lvl][map_x][map_y] = all[map_x][map_y];
             maxMap[lvl][map_x][map_y] = all[map_x][map_y];
-
-            return pair<float, float>(minMap[lvl][map_x][map_y], maxMap[lvl][map_x][map_y]);
         }
     }
 
