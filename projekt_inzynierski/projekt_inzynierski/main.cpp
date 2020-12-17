@@ -51,6 +51,8 @@ int choosedType = 0;
 
 CHUNK* chunk[CHUNKS_COUNT][CHUNKS_COUNT];
 
+float** noise[NOISE_MAP_COUNT][NOISE_MAP_COUNT];
+
 int main()
 {
     // glfw: initialize and configure
@@ -421,13 +423,31 @@ CHUNK* generate_chunk(int x, int y) {
     cho[0]->setFullBlock(0, 0, 0, 3, MAX_LEVEL - 4);
 
     // stone top layer
-    Perlin p(16, 16, 1);
-    p.setSeed(x, y);
-    float** hMap = p.getAll();
+    
+    int noise_x = (x * CHUNK_SIZE) / NOISE_MAP_SIZE;
+    int noise_y = (y * CHUNK_SIZE) / NOISE_MAP_SIZE;
+    if (noise[noise_x][noise_y] == NULL) {
+        Perlin p2(NOISE_MAP_SIZE, FREQ1, 1);
+        p2.setSeed(noise_x, noise_y);
+        noise[noise_x][noise_y] = p2.getAll();
+    }
+    
+    
+    float** hMap;
+    hMap = new float*[CHUNK_SIZE];
+    for (int i = 0; i < CHUNK_SIZE; ++i)
+        hMap[i] = new float[CHUNK_SIZE];
+
+    for (int i = 0; i < CHUNK_SIZE; ++i) {
+        for (int j = 0; j < CHUNK_SIZE; ++j) {
+            hMap[i][j] = noise[noise_x][noise_y][(x * CHUNK_SIZE) % NOISE_MAP_SIZE + i][(y * CHUNK_SIZE) % NOISE_MAP_SIZE + j];
+        }
+    }
+
+    Perlin p(hMap);
     p.setMinMaxMap();
     float*** minMap = p.getMinMap();
     float*** maxMap = p.getMaxMap();
-
     cho[1] = new Octree();
     cho[1]->addMinMap(minMap, 4, 0, 0, 0, 3, 0);
 
