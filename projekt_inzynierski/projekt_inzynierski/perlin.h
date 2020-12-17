@@ -56,62 +56,6 @@ private:
     }
 
 public:
-    float*** getMinMap() {
-        if (minMap == NULL)
-            setMinMaxMap();
-        return minMap;
-    }
-
-    float*** getMaxMap() {
-        if (maxMap == NULL)
-            setMinMaxMap();
-        return maxMap;
-    }
-
-    void setMinMaxMap() {
-        // minMap, maxMap allocation
-        minMap = new float** [5];
-        maxMap = new float** [5];
-
-        for (int i = 0; i < 5; ++i) {
-            minMap[i] = new float* [MAX_DIM_SIZE >> i];
-            maxMap[i] = new float* [MAX_DIM_SIZE >> i];
-
-            for (int j = 0; j < MAX_DIM_SIZE >> i; ++j) {
-                minMap[i][j] = new float[MAX_DIM_SIZE >> i];
-                maxMap[i][j] = new float[MAX_DIM_SIZE >> i];
-            }
-        }
-        for (int i = 0; i < MAX_DIM_SIZE/16; i += 1) {
-            for (int j = 0; j < MAX_DIM_SIZE/16; j += 1) {
-                recSetMinMaxMap(i, j, 0, 0, 4);
-            }
-        }
-    }
-
-    void recSetMinMaxMap(int x0, int y0, int x, int y, int lvl) {
-        int map_x = (x0 << (4 - lvl)) + x;
-        int map_y = (y0 << (4 - lvl)) + y;
-        if (lvl > 0) {
-            minMap[lvl][map_x][map_y] = 1.0f;
-            maxMap[lvl][map_x][map_y] = 0.0f;
-
-            for (int i = 0; i < 2; ++i) {
-                for (int j = 0; j < 2; ++j) {
-                    recSetMinMaxMap(x0, y0, x*2 + i, y*2 + j, lvl - 1);
-                    float newMin = minMap[lvl - 1][(x0 << (4 - (lvl - 1))) + x*2 + i][(y0 << (4 - (lvl - 1))) + y*2 + j];
-                    float newMax = maxMap[lvl - 1][(x0 << (4 - (lvl - 1))) + x*2 + i][(y0 << (4 - (lvl - 1))) + y*2 + j];
-                    minMap[lvl][map_x][map_y] = min(minMap[lvl][map_x][map_y], newMin);
-                    maxMap[lvl][map_x][map_y] = max(maxMap[lvl][map_x][map_y], newMax);
-                }
-            }
-        }
-        else {
-            minMap[lvl][map_x][map_y] = all[map_x][map_y];
-            maxMap[lvl][map_x][map_y] = all[map_x][map_y];
-        }
-    }
-
     Perlin(int _field_size, int _grid_size, int _vec_type) {
         seedx = seedy = 0;
 
@@ -123,14 +67,7 @@ public:
         grid = new vec * [grid_count];
         for (int i = 0; i < grid_count; ++i)
             grid[i] = new vec[grid_count];
-
-
     }
-
-    Perlin(float **_all) {
-        all = _all;
-    }
-
 
     void setSeed(int _seedx, int _seedy) {
         seedx = _seedx;

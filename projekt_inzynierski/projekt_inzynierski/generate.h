@@ -1,6 +1,8 @@
 #pragma once
 #include "octree.h"
 
+#define SAME(a, b, c, d) ((a == b) && (b == c) && (c == d))
+
 // struktury
 
 struct CHUNK {
@@ -14,7 +16,13 @@ CHUNK* chunk[CHUNKS_COUNT][CHUNKS_COUNT];
 
 float** noise[NOISE_MAP_COUNT][NOISE_MAP_COUNT];
 
-// funkcje
+// deklaracje funkcji
+
+void recSetMinMap(float*** minMap, int x, int y, int lvl);
+float*** getMinMap(float** hMap);
+CHUNK* generate_chunk(int x, int y);
+
+// implementacje funkcji
 
 CHUNK* generate_chunk(int x, int y) {
     chunk[x][y] = new CHUNK();
@@ -22,6 +30,7 @@ CHUNK* generate_chunk(int x, int y) {
     Octree** cho = ch->o;
 
     // stone layer
+
     cho[0] = new Octree();
     cho[0]->setFullBlock(0, 0, 0, 3, MAX_LEVEL - 4);
 
@@ -30,11 +39,10 @@ CHUNK* generate_chunk(int x, int y) {
     int noise_x = (x * CHUNK_SIZE) / NOISE_MAP_SIZE;
     int noise_y = (y * CHUNK_SIZE) / NOISE_MAP_SIZE;
     if (noise[noise_x][noise_y] == NULL) {
-        Perlin p2(NOISE_MAP_SIZE, FREQ1, 1);
-        p2.setSeed(noise_x, noise_y);
-        noise[noise_x][noise_y] = p2.getAll();
+        Perlin p(NOISE_MAP_SIZE, FREQ1, 1);
+        p.setSeed(noise_x, noise_y);
+        noise[noise_x][noise_y] = p.getAll();
     }
-
 
     float** hMap;
     hMap = new float* [CHUNK_SIZE];
@@ -46,39 +54,76 @@ CHUNK* generate_chunk(int x, int y) {
             hMap[i][j] = noise[noise_x][noise_y][(x * CHUNK_SIZE) % NOISE_MAP_SIZE + i][(y * CHUNK_SIZE) % NOISE_MAP_SIZE + j];
         }
     }
-
-    Perlin p(hMap);
-    p.setMinMaxMap();
-    float*** minMap = p.getMinMap();
-    float*** maxMap = p.getMaxMap();
+    float*** minMap = getMinMap(hMap);
     cho[1] = new Octree();
     cho[1]->addMinMap(minMap, 4, 0, 0, 0, 3, 0);
 
     // dirt top layer
-    for (int i = 0; i < MAX_DIM_SIZE / 2; ++i) {
-        for (int j = 0; j < MAX_DIM_SIZE / 2; ++j) {
-            if (((int)(16 * minMap[1][i][j]) == (int)(16 * maxMap[1][i][j])) && ((int)(16 * minMap[1][i][j]) % 2 == 0)) {
-                cho[1]->setFullBlock(i * 2, (int)(maxMap[1][i][j] * 16) + 16, j * 2, 2, MAX_LEVEL - 1);
+    for (int i = 0; i < MAX_DIM_SIZE; i += 2) {
+        for (int j = 0; j < MAX_DIM_SIZE; j += 2) {
+            if (SAME((int)(16 * hMap[i][j]), (int)(16 * hMap[i][j+1]), (int)(16 * hMap[i+1][j]), (int)(16 * hMap[i+1][j+1])) && ((int)(16 * hMap[i][j]) % 2 == 0)) {
+                cho[1]->setFullBlock(i, (int)(hMap[i][j] * 16) + 16, j, 2, MAX_LEVEL - 1);
             }
             else {
-                cho[1]->setFullBlock(i * 2, (int)(hMap[2 * i][2 * j] * 16), j * 2, 2, MAX_LEVEL);
-                cho[1]->setFullBlock(i * 2, (int)(hMap[2 * i][2 * j] * 16) + 1, j * 2, 2, MAX_LEVEL);
+                cho[1]->setFullBlock(i, (int)(hMap[i][j] * 16), j, 2, MAX_LEVEL);
+                cho[1]->setFullBlock(i, (int)(hMap[i][j] * 16) + 1, j, 2, MAX_LEVEL);
 
-                cho[1]->setFullBlock(i * 2, (int)(hMap[2 * i][2 * j + 1] * 16), j * 2 + 1, 2, MAX_LEVEL);
-                cho[1]->setFullBlock(i * 2, (int)(hMap[2 * i][2 * j + 1] * 16) + 1, j * 2 + 1, 2, MAX_LEVEL);
+                cho[1]->setFullBlock(i, (int)(hMap[i][j+1] * 16), j + 1, 2, MAX_LEVEL);
+                cho[1]->setFullBlock(i, (int)(hMap[i][j+1] * 16) + 1, j + 1, 2, MAX_LEVEL);
 
-                cho[1]->setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j] * 16), j * 2, 2, MAX_LEVEL);
-                cho[1]->setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j] * 16) + 1, j * 2, 2, MAX_LEVEL);
+                cho[1]->setFullBlock(i+1, (int)(hMap[i+1][j] * 16), j, 2, MAX_LEVEL);
+                cho[1]->setFullBlock(i+1, (int)(hMap[i+1][j] * 16) + 1, j, 2, MAX_LEVEL);
 
-                cho[1]->setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j + 1] * 16), j * 2 + 1, 2, MAX_LEVEL);
-                cho[1]->setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j + 1] * 16) + 1, j * 2 + 1, 2, MAX_LEVEL);
+                cho[1]->setFullBlock(i+1, (int)(hMap[i+1][j+1] * 16), j + 1, 2, MAX_LEVEL);
+                cho[1]->setFullBlock(i+1, (int)(hMap[i+1][j+1] * 16) + 1, j + 1, 2, MAX_LEVEL);
             }
-            cho[1]->setFullBlock(i * 2, (int)(hMap[2 * i][2 * j] * 16) + 2, j * 2, 1, MAX_LEVEL);
-            cho[1]->setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j] * 16) + 2, j * 2, 1, MAX_LEVEL);
-            cho[1]->setFullBlock(i * 2, (int)(hMap[2 * i][2 * j + 1] * 16) + 2, j * 2 + 1, 1, MAX_LEVEL);
-            cho[1]->setFullBlock(i * 2 + 1, (int)(hMap[2 * i + 1][2 * j + 1] * 16) + 2, j * 2 + 1, 1, MAX_LEVEL);
+            cho[1]->setFullBlock(i, (int)(hMap[i][j] * 16) + 2, j, 1, MAX_LEVEL);
+            cho[1]->setFullBlock(i+1, (int)(hMap[i+1][j] * 16) + 2, j, 1, MAX_LEVEL);
+            cho[1]->setFullBlock(i, (int)(hMap[i][j+1] * 16) + 2, j + 1, 1, MAX_LEVEL);
+            cho[1]->setFullBlock(i+1, (int)(hMap[i+1][j+1] * 16) + 2, j + 1, 1, MAX_LEVEL);
         }
     }
 
+    // deallocate
+
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < MAX_DIM_SIZE >> i; ++j)
+            delete minMap[i][j];
+        delete minMap[i];
+    }
+    delete minMap;
+
     return ch;
+}
+
+float*** getMinMap(float** hMap) {
+    // allocate
+    float*** minMap = new float** [5];
+    for (int i = 0; i < 5; ++i) {
+        minMap[i] = new float* [MAX_DIM_SIZE >> i];
+        for (int j = 0; j < MAX_DIM_SIZE >> i; ++j)
+            minMap[i][j] = new float[MAX_DIM_SIZE >> i];
+    }
+
+    // set lowest level
+    for (int i = 0; i < CHUNK_SIZE; ++i)
+        for (int j = 0; j < CHUNK_SIZE; ++j)
+            minMap[0][i][j] = hMap[i][j];
+
+    recSetMinMap(minMap, 0, 0, 4);
+
+    return minMap;
+}
+
+void recSetMinMap(float*** minMap, int x, int y, int lvl) {
+    if (lvl > 0) {
+        recSetMinMap(minMap, x * 2, y * 2, lvl - 1);
+        recSetMinMap(minMap, x * 2, y * 2 + 1, lvl - 1);
+        recSetMinMap(minMap, x * 2 + 1, y * 2, lvl - 1);
+        recSetMinMap(minMap, x * 2 + 1, y * 2 + 1, lvl - 1);
+        minMap[lvl][x][y] = min(min(minMap[lvl - 1][x * 2][y * 2],
+            minMap[lvl - 1][x * 2][y * 2 + 1]),
+            min(minMap[lvl - 1][x * 2 + 1][y * 2],
+                minMap[lvl - 1][x * 2 + 1][y * 2 + 1]));
+    }
 }
