@@ -49,7 +49,7 @@ int side = 0;
 
 int choosedType = 0;
 
-CHUNK* chunk[200][200];
+CHUNK* chunk[CHUNKS_COUNT][CHUNKS_COUNT];
 
 int main()
 {
@@ -179,10 +179,9 @@ int main()
 
 
     int width, height, nrChannels;
-    int textures = 5;
-    unsigned char** data = new unsigned char*[textures*3];
+    unsigned char** data = new unsigned char*[NUM_WORLD_TEXTURES *3];
     stbi_set_flip_vertically_on_load(true);
-    for (int i = 0; i < textures; i ++) {
+    for (int i = 0; i < NUM_WORLD_TEXTURES; i ++) {
         string src = "textures/" + to_string(i) + "s.png";
         data[3*i] = stbi_load(src.c_str(), &width, &height, &nrChannels, 0);
         src = "textures/" + to_string(i) + "d.png";
@@ -191,9 +190,9 @@ int main()
         data[3*i + 2] = stbi_load(src.c_str(), &width, &height, &nrChannels, 0);
     }
     
-    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, width, height, textures * 3, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, width, height, NUM_WORLD_TEXTURES * 3, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
     
-    for (int i = 0; i < textures*3; i++) {
+    for (int i = 0; i < NUM_WORLD_TEXTURES *3; i++) {
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, data[i]);
     }
 
@@ -209,7 +208,7 @@ int main()
 
     glActiveTexture(GL_TEXTURE0);
 
-    for (int i = 0; i < textures * 3; i++) {
+    for (int i = 0; i < NUM_WORLD_TEXTURES * 3; i++) {
         stbi_image_free(data[i]);
     }
     
@@ -259,11 +258,11 @@ int main()
         for (int lvl = MAX_LEVEL; lvl >= 0; --lvl) {
             glUniform1f(scaleLoc, 1 << (MAX_LEVEL - lvl));
 
-            for (int tt = 0; tt < 5; ++tt) {
+            for (int tt = 0; tt < NUM_WORLD_TEXTURES; ++tt) {
                 glUniform1i(layerLoc, 3 * tt);
 
-                for (int chx = 0; chx < 200; ++chx) {
-                    for (int chy = 0; chy < 200; ++chy) {
+                for (int chx = 0; chx < CHUNKS_COUNT; ++chx) {
+                    for (int chy = 0; chy < CHUNKS_COUNT; ++chy) {
                         CHUNK* ch = chunk[chx][chy];
                         float cdx = camera.Position.x - (chx * 16.0 + 8.0);
                         float cdy = camera.Position.z - (chy * 16.0 + 8.0);
@@ -369,7 +368,7 @@ int main()
             float line_t = 0.007f;
             if (!((abs(dl.x) < line_t && abs(dl.y) < line_t) || (abs(dl.x) < line_t && abs(dl.z) < line_t) || (abs(dl.y) < line_t && abs(dl.z) < line_t))) {
 
-                if (chunk_x < 200 && chunk_z < 200 && chunk_x >= 0 && chunk_z >= 0) {
+                if (chunk_x < CHUNKS_COUNT && chunk_z < CHUNKS_COUNT && chunk_x >= 0 && chunk_z >= 0) {
                     CHUNK* ch = chunk[chunk_x][chunk_z];
                     if (ch != NULL) {
                         if (octree_y < 8 && octree_y >= 0) {

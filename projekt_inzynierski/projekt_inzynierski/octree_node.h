@@ -1,22 +1,7 @@
 #pragma once
+#include "constans.h"
 using namespace std;
 
-const int MAX_LEVEL = 4;
-const int MAX_DIM_SIZE = 1 << MAX_LEVEL;
-const int MAX_SIZE = MAX_DIM_SIZE * MAX_DIM_SIZE * MAX_DIM_SIZE;
-const int MAX_CHILD = 8;
-
-const int DIM_SIZE[] = {
-    //256, // MAX_LEVEL - 8
-    //128, // MAX_LEVEL - 7 
-    //64,  // MAX_LEVEL - 6
-    //32,  // MAX_LEVEL - 5
-    16,  // MAX_LEVEL - 4
-    8,   // MAX_LEVEL - 3
-    4,   // MAX_LEVEL - 2
-    2,   // MAX_LEVEL - 1
-    1    // MAX_LEVEL
-};
 
 struct TRI_ARGS {
     float x, y, z;
