@@ -149,7 +149,7 @@ public:
         rand();
         for (int i = 0; i < grid_count-1; ++i) {
             grid[i][grid_count - 1] = randVec();
-            for (int j = 0; j < grid_count - 1; ++j)
+            for (int j = 0; j < grid_count - 2; ++j)
                 randVec();
         }
         
