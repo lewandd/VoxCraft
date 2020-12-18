@@ -21,6 +21,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 void processInput(GLFWwindow* window);
+void selectBlock();
 
 //CHUNK* generate_chunk(int x, int y);
 
@@ -307,96 +308,7 @@ int main()
             }
         }
         
-        if (selectedBlock != NULL)
-            selectedBlock->unsetSeleted();
-        selectedBlock = NULL;
-
-        selected_chunk_x = -1;
-        selected_chunk_y = -1;
-        selected_octree = -1;
-        selected_x = -1;
-        selected_y = -1;
-        selected_z = -1;
-        selected = false;
-
-        float dep;
-        glReadPixels(400, 400, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &dep);
-        float z = 1.0f / (dep * (1.0f / 100.0f - 1.0f / 0.1f) + 1.0f / 0.1f);
-
-        glm::vec3 lookAt = camera.Position + camera.Front * z;
-        //printf("exactly (%8.5f, %8.5f, %8.5f) ", lookAt.x, lookAt.y, lookAt.z);
-        glLineWidth(3.f);
-
-        if (z < 99.9f) {
-            glm::vec3 dl = glm::vec3(round(lookAt.x)-lookAt.x, round(lookAt.y)-lookAt.y, round(lookAt.z)-lookAt.z);
-
-            if ((abs(dl.x) < abs(dl.y)) && (abs(dl.x) < abs(dl.z))) {
-                if (camera.Front.x > 0.0f) {
-                    side = 1;
-                    lookAt.x += 0.01f;
-                }
-                else {
-                    side = 2;
-                    lookAt.x -= 0.01f;
-                }
-            }
-            else if (abs(dl.y) < abs(dl.z)) {
-                if (camera.Front.y > 0.0f) {
-                    side = 3;
-                    lookAt.y += 0.01f;
-                }
-                else {
-                    side = 4;
-                    lookAt.y -= 0.01f;
-                }
-            }
-            else {
-                if (camera.Front.z > 0.0f) {
-                    side = 5;
-                    lookAt.z += 0.01f;
-                }
-                else {
-                    side = 6;
-                    lookAt.z -= 0.01f;
-                }
-            }
-
-            //printf("changed (%8.5f, %8.5f, %8.5f) ", lookAt.x, lookAt.y, lookAt.z);
-            
-            lookAt.x = floor(lookAt.x);
-            lookAt.y = floor(lookAt.y);
-            lookAt.z = floor(lookAt.z);
-
-            selected_x = (int)lookAt.x % 16;
-            selected_y = (int)lookAt.y % 16;
-            selected_z = (int)lookAt.z % 16;
-
-            selected_chunk_x = (int)lookAt.x / 16;
-            selected_chunk_y = (int)lookAt.z / 16;
-            selected_octree = (int)lookAt.y / 16;
-
-            float line_t = 0.007f;
-            if (!((abs(dl.x) < line_t && abs(dl.y) < line_t) || (abs(dl.x) < line_t && abs(dl.z) < line_t) || (abs(dl.y) < line_t && abs(dl.z) < line_t))) {
-
-                if (selected_chunk_x < CHUNKS_COUNT && selected_chunk_y < CHUNKS_COUNT && selected_chunk_x >= 0 && selected_chunk_y >= 0) {
-                    CHUNK* ch = chunk[selected_chunk_x][selected_chunk_y];
-                    if (ch != NULL) {
-                        if (selected_octree < 8 && selected_octree >= 0) {
-                            Octree* cho = ch->o[selected_octree];
-                            if (cho != NULL) {
-                                selectedBlock = cho->getBlock(selected_x, selected_y, selected_z);
-                                if (selectedBlock != NULL) {
-                                    selectedBlock->setSeleted();
-                                    selected = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            //printf("%5.1f noticed (%2d, %2d, %2d) \n", z, selected_x, selected_y, selected_z);
-        }
+        selectBlock();
 
         // tymczasowy wskaźnik środka
 
@@ -557,4 +469,97 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastY = (float) ypos;
 
     camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+void selectBlock() {
+    if (selectedBlock != NULL)
+        selectedBlock->unsetSeleted();
+    selectedBlock = NULL;
+
+    selected_chunk_x = -1;
+    selected_chunk_y = -1;
+    selected_octree = -1;
+    selected_x = -1;
+    selected_y = -1;
+    selected_z = -1;
+    selected = false;
+
+    float dep;
+    glReadPixels(400, 400, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &dep);
+    float z = 1.0f / (dep * (1.0f / 100.0f - 1.0f / 0.1f) + 1.0f / 0.1f);
+
+    glm::vec3 lookAt = camera.Position + camera.Front * z;
+    //printf("exactly (%8.5f, %8.5f, %8.5f) ", lookAt.x, lookAt.y, lookAt.z);
+    glLineWidth(3.f);
+
+    if (z < 99.9f) {
+        glm::vec3 dl = glm::vec3(round(lookAt.x) - lookAt.x, round(lookAt.y) - lookAt.y, round(lookAt.z) - lookAt.z);
+
+        if ((abs(dl.x) < abs(dl.y)) && (abs(dl.x) < abs(dl.z))) {
+            if (camera.Front.x > 0.0f) {
+                side = 1;
+                lookAt.x += 0.01f;
+            }
+            else {
+                side = 2;
+                lookAt.x -= 0.01f;
+            }
+        }
+        else if (abs(dl.y) < abs(dl.z)) {
+            if (camera.Front.y > 0.0f) {
+                side = 3;
+                lookAt.y += 0.01f;
+            }
+            else {
+                side = 4;
+                lookAt.y -= 0.01f;
+            }
+        }
+        else {
+            if (camera.Front.z > 0.0f) {
+                side = 5;
+                lookAt.z += 0.01f;
+            }
+            else {
+                side = 6;
+                lookAt.z -= 0.01f;
+            }
+        }
+
+        //printf("changed (%8.5f, %8.5f, %8.5f) ", lookAt.x, lookAt.y, lookAt.z);
+
+        lookAt.x = floor(lookAt.x);
+        lookAt.y = floor(lookAt.y);
+        lookAt.z = floor(lookAt.z);
+
+        selected_x = (int)lookAt.x % 16;
+        selected_y = (int)lookAt.y % 16;
+        selected_z = (int)lookAt.z % 16;
+
+        selected_chunk_x = (int)lookAt.x / 16;
+        selected_chunk_y = (int)lookAt.z / 16;
+        selected_octree = (int)lookAt.y / 16;
+
+        float line_t = 0.007f;
+        if (!((abs(dl.x) < line_t && abs(dl.y) < line_t) || (abs(dl.x) < line_t && abs(dl.z) < line_t) || (abs(dl.y) < line_t && abs(dl.z) < line_t))) {
+
+            if (selected_chunk_x < CHUNKS_COUNT && selected_chunk_y < CHUNKS_COUNT && selected_chunk_x >= 0 && selected_chunk_y >= 0) {
+                CHUNK* ch = chunk[selected_chunk_x][selected_chunk_y];
+                if (ch != NULL) {
+                    if (selected_octree < 8 && selected_octree >= 0) {
+                        Octree* cho = ch->o[selected_octree];
+                        if (cho != NULL) {
+                            selectedBlock = cho->getBlock(selected_x, selected_y, selected_z);
+                            if (selectedBlock != NULL) {
+                                selectedBlock->setSeleted();
+                                selected = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //printf("%5.1f noticed (%2d, %2d, %2d) \n", z, selected_x, selected_y, selected_z);
+    }
 }
