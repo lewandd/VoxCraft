@@ -38,11 +38,17 @@ bool firstMouse = true;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
-Octree* selectedOctree = NULL;
+// selected
+OctreeNode* selectedBlock = NULL;
+int selected_chunk_x = -1;
+int selected_chunk_y = -1;
+int selected_octree = -1;
+int selected_x = -1;
+int selected_y = -1;
+int selected_z = -1;
+bool selected = false;
 
-// wybrana ściana bloku
 int side = 0;
-
 int choosedType = 0;
 
 int main()
@@ -301,10 +307,17 @@ int main()
             }
         }
         
-        if (selectedOctree != NULL) {
-            selectedOctree->unsetSelected();
-        }
-        selectedOctree = NULL;
+        if (selectedBlock != NULL)
+            selectedBlock->unsetSeleted();
+        selectedBlock = NULL;
+
+        selected_chunk_x = -1;
+        selected_chunk_y = -1;
+        selected_octree = -1;
+        selected_x = -1;
+        selected_y = -1;
+        selected_z = -1;
+        selected = false;
 
         float dep;
         glReadPixels(400, 400, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &dep);
@@ -350,26 +363,32 @@ int main()
 
             //printf("changed (%8.5f, %8.5f, %8.5f) ", lookAt.x, lookAt.y, lookAt.z);
             
-            int selected_x = (int)(floor(lookAt.x));
-            int selected_y = (int)(floor(lookAt.y));
-            int selected_z = (int)(floor(lookAt.z));
+            lookAt.x = floor(lookAt.x);
+            lookAt.y = floor(lookAt.y);
+            lookAt.z = floor(lookAt.z);
 
-            int chunk_x =  selected_x / 16;
-            int chunk_z = selected_z / 16;
-            int octree_y = selected_y / 16;
+            selected_x = (int)lookAt.x % 16;
+            selected_y = (int)lookAt.y % 16;
+            selected_z = (int)lookAt.z % 16;
 
+            selected_chunk_x = (int)lookAt.x / 16;
+            selected_chunk_y = (int)lookAt.z / 16;
+            selected_octree = (int)lookAt.y / 16;
 
             float line_t = 0.007f;
             if (!((abs(dl.x) < line_t && abs(dl.y) < line_t) || (abs(dl.x) < line_t && abs(dl.z) < line_t) || (abs(dl.y) < line_t && abs(dl.z) < line_t))) {
 
-                if (chunk_x < CHUNKS_COUNT && chunk_z < CHUNKS_COUNT && chunk_x >= 0 && chunk_z >= 0) {
-                    CHUNK* ch = chunk[chunk_x][chunk_z];
+                if (selected_chunk_x < CHUNKS_COUNT && selected_chunk_y < CHUNKS_COUNT && selected_chunk_x >= 0 && selected_chunk_y >= 0) {
+                    CHUNK* ch = chunk[selected_chunk_x][selected_chunk_y];
                     if (ch != NULL) {
-                        if (octree_y < 8 && octree_y >= 0) {
-                            Octree* cho = ch->o[octree_y];
+                        if (selected_octree < 8 && selected_octree >= 0) {
+                            Octree* cho = ch->o[selected_octree];
                             if (cho != NULL) {
-                                selectedOctree = cho;
-                                cho->setSelected(selected_x % 16, selected_y % 16, selected_z % 16);
+                                selectedBlock = cho->getBlock(selected_x, selected_y, selected_z);
+                                if (selectedBlock != NULL) {
+                                    selectedBlock->setSeleted();
+                                    selected = true;
+                                }
                             }
                         }
                     }
@@ -452,27 +471,71 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        if (selectedOctree != NULL)
-            selectedOctree->remove(selectedOctree->selected_x, selectedOctree->selected_y, selectedOctree->selected_z);
+        if (selected) {
+            CHUNK* ch = chunk[selected_chunk_x][selected_chunk_y];
+            Octree* cho = ch->o[selected_octree];
+            cho->remove(selected_x, selected_y, selected_z);
+        }
     }
 
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-        if (selectedOctree != NULL) {
-            if (selectedOctree->existSelected()) {
-                if (side == 1) {
-                    selectedOctree->add(selectedOctree->selected_x - 1, selectedOctree->selected_y, selectedOctree->selected_z, choosedType + 1);
-                }
-                if (side == 2)
-                    selectedOctree->add(selectedOctree->selected_x + 1, selectedOctree->selected_y, selectedOctree->selected_z, choosedType + 1);
-                if (side == 3) {
-                    selectedOctree->add(selectedOctree->selected_x, selectedOctree->selected_y - 1, selectedOctree->selected_z, choosedType + 1);
-                }
-                if (side == 4)
-                    selectedOctree->add(selectedOctree->selected_x, selectedOctree->selected_y + 1, selectedOctree->selected_z, choosedType + 1);
-                if (side == 5)
-                    selectedOctree->add(selectedOctree->selected_x, selectedOctree->selected_y, selectedOctree->selected_z - 1, choosedType + 1);
-                if (side == 6)
-                    selectedOctree->add(selectedOctree->selected_x, selectedOctree->selected_y, selectedOctree->selected_z + 1, choosedType + 1);
+        if (selected) {
+            int final_selected_chunk_x = selected_chunk_x;
+            int final_selected_chunk_y = selected_chunk_y;
+            int final_selected_octree = selected_octree;
+            int final_selected_x = selected_x;
+            int final_selected_y = selected_y;
+            int final_selected_z = selected_z;
+
+            // set final coords
+            switch (side) {
+                case 1: 
+                    if (selected_x == 0)
+                        final_selected_chunk_x--;
+                    final_selected_x--;
+                    break;
+                case 2:
+                    if (selected_x == 15)
+                        final_selected_chunk_x++;
+                    final_selected_x++;
+                    break;
+                case 3: 
+                    if (selected_y == 0)
+                        final_selected_octree--;
+                    final_selected_y--;
+                    break;
+                case 4:
+                    if (selected_y == 15)
+                        final_selected_octree++;
+                    final_selected_y++;
+                    break;
+                case 5:
+                    if (selected_z == 0)
+                        final_selected_chunk_y--;
+                    final_selected_z--;
+                    break;
+                case 6:
+                    if (selected_z == 15)
+                        final_selected_chunk_y++;
+                    final_selected_z++;
+                    break;
+            }
+            
+            // check if correct position coords
+            if (final_selected_chunk_x >= 0 && final_selected_chunk_x < CHUNKS_COUNT && 
+                final_selected_chunk_y >= 0 && final_selected_chunk_y < CHUNKS_COUNT && 
+                final_selected_octree >= 0 && final_selected_octree < 8) {
+                
+                if (chunk[final_selected_chunk_x][final_selected_chunk_y] == NULL)
+                    generate_chunk(final_selected_chunk_x, final_selected_chunk_y);
+                CHUNK* ch = chunk[final_selected_chunk_x][final_selected_chunk_y];
+
+                if (ch->o[final_selected_octree] == NULL)
+                    ch->o[final_selected_octree] = new Octree();
+
+                Octree* cho = ch->o[final_selected_octree];
+
+                cho->add(final_selected_x, final_selected_y, final_selected_z, choosedType + 1);
             }
         }
     }
