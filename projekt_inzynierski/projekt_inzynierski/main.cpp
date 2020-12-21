@@ -278,13 +278,13 @@ int main()
         glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);        
         glm::mat4 view = camera.GetViewMatrix();
 
+        blockShader.use();
+        glBindVertexArray(VAO);
+
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniform1f(selectedLoc, 1.0f);
         
-        blockShader.use();
-        glBindVertexArray(VAO);
-
         glm::mat4 model(1.0f);
 
         for (int lvl = MAX_LEVEL; lvl >= 0; --lvl) {
@@ -341,14 +341,16 @@ int main()
         
         selectBlock();
 
-        // tymczasowy wskaźnik środka
+        // target
 
-        glUniform1f(scaleLoc, 1.0f);
-        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(glm::scale(glm::mat4(1.0f), glm::vec3(0.01f, 0.01f, 0.01f))));
+        targetShader.use();
+        glUniform3f(targetColorLoc, TARGET_COLOR_R, TARGET_COLOR_G, TARGET_COLOR_B);
+        glUniform1f(targetSizeLoc, TARGET_SIZE);
+        glLineWidth(TARGET_THICKNESS);
 
-        glDrawArrays(GL_LINES, 0, 36);
+        glBindVertexArray(targetVAO);
+
+        glDrawArrays(GL_LINES, 0, 4);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
