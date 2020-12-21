@@ -9,5 +9,6 @@ in float Side;
 
 void main()
 {
-    FragColor = texture(tex, vec3(TexCoord, layer + Side)) * out_selected;
+    FragColor = texture(tex, vec3(TexCoord, layer + Side));
+    FragColor.rgb = FragColor.rgb * selected;
 } 
