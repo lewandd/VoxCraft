@@ -165,8 +165,8 @@
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.fs" />
-    <None Include="shader.vs" />
+    <None Include="block.fs" />
+    <None Include="block.vs" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="projekt_inzynierski.rc" />

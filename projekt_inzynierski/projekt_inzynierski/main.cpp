@@ -90,7 +90,7 @@ int main()
 
     // build and compile shader program
     // ------------------------------------
-    Shader shader("shader.vs", "shader.fs");
+    Shader shader("block.vs", "block.fs");
 
     // set up vertex data
     // ------------------

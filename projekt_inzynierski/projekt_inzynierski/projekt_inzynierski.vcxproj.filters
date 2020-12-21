@@ -55,10 +55,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.fs">
+    <None Include="block.fs">
       <Filter>Pliki źródłowe</Filter>
     </None>
-    <None Include="shader.vs">
+    <None Include="block.vs">
       <Filter>Pliki źródłowe</Filter>
     </None>
   </ItemGroup>
