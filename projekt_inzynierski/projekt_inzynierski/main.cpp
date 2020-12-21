@@ -490,7 +490,6 @@ void selectBlock() {
 
     glm::vec3 lookAt = camera.Position + camera.Front * z;
     //printf("exactly (%8.5f, %8.5f, %8.5f) ", lookAt.x, lookAt.y, lookAt.z);
-    glLineWidth(3.f);
 
     if (z < 99.9f) {
         glm::vec3 dl = glm::vec3(round(lookAt.x) - lookAt.x, round(lookAt.y) - lookAt.y, round(lookAt.z) - lookAt.z);
