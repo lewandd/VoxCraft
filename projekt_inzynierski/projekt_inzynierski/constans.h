@@ -36,3 +36,11 @@ const int NOISE_MAP_COUNT = TOTAL_SIZE / NOISE_MAP_SIZE;
 // Textures
 
 const int NUM_WORLD_TEXTURES = 5;
+
+// Target
+
+const float TARGET_SIZE = 1.0f;
+const float TARGET_THICKNESS = 2.0f;
+const float TARGET_COLOR_R = 1.0f;
+const float TARGET_COLOR_G = 1.0f;
+const float TARGET_COLOR_B = 1.0f;
