@@ -140,12 +140,38 @@ int main()
     1.0f,   1.0f,   1.0f,   1.0f,   0.0f, 2.0f,
     };
 
+    float target_vertices[] = {
+    -0.02f,  0.0f,  0.0f,
+     0.02f,  0.0f,  0.0f,
+     0.0f, -0.02f,  0.0f,
+     0.0f,  0.02f,  0.0f,
+    };
+
     // generate data
 
     generate_chunk(0, 0);
     generate_chunk(0, 1);
     generate_chunk(1, 0);
     generate_chunk(1, 1);
+
+    // targetVAO
+
+    unsigned int targetVBO, targetVAO;
+    glGenVertexArrays(1, &targetVAO);
+    glGenBuffers(1, &targetVBO);
+    glBindVertexArray(targetVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, targetVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(target_vertices), target_vertices, GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    // blockVAO
 
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -168,6 +194,7 @@ int main()
     glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(5 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
+    // textures load
     unsigned int texture;
     glGenTextures(1, &texture); 
     glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
@@ -225,6 +252,9 @@ int main()
     int viewLoc = glGetUniformLocation(blockShader.ID, "view");
     int scaleLoc = glGetUniformLocation(blockShader.ID, "scale");
     int selectedLoc = glGetUniformLocation(blockShader.ID, "selected");
+
+    int targetColorLoc = glGetUniformLocation(targetShader.ID, "aColor");
+    int targetSizeLoc = glGetUniformLocation(targetShader.ID, "aSize");
 
     // render loop
     // -----------
