@@ -167,6 +167,8 @@
   <ItemGroup>
     <None Include="block.fs" />
     <None Include="block.vs" />
+    <None Include="target.fs" />
+    <None Include="target.vs" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="projekt_inzynierski.rc" />

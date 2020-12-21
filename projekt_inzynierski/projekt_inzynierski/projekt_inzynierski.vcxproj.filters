@@ -61,6 +61,12 @@
     <None Include="block.vs">
       <Filter>Pliki źródłowe</Filter>
     </None>
+    <None Include="target.vs">
+      <Filter>Pliki źródłowe</Filter>
+    </None>
+    <None Include="target.fs">
+      <Filter>Pliki źródłowe</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="projekt_inzynierski.rc">
