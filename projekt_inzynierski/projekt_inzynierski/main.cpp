@@ -90,7 +90,7 @@ int main()
 
     // build and compile shader program
     // ------------------------------------
-    Shader shader("block.vs", "block.fs");
+    Shader blockShader("block.vs", "block.fs");
 
     // set up vertex data
     // ------------------
@@ -201,10 +201,10 @@ int main()
     glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
 
     // connect texture to sampler in fragmentshader
-    int texLoc = glGetUniformLocation(shader.ID, "tex");
+    int texLoc = glGetUniformLocation(blockShader.ID, "tex");
     glUniform1i(texLoc, 0);
 
-    int layerLoc= glGetUniformLocation(shader.ID, "layer");
+    int layerLoc= glGetUniformLocation(blockShader.ID, "layer");
     glUniform1i(layerLoc, 0);
 
     glActiveTexture(GL_TEXTURE0);
@@ -219,11 +219,11 @@ int main()
     // unbind VAO
     glBindVertexArray(0);
 
-    int modelLoc = glGetUniformLocation(shader.ID, "model");
-    int projLoc = glGetUniformLocation(shader.ID, "projection");
-    int viewLoc = glGetUniformLocation(shader.ID, "view");
-    int scaleLoc = glGetUniformLocation(shader.ID, "scale");
-    int selectedLoc = glGetUniformLocation(shader.ID, "selected");
+    int modelLoc = glGetUniformLocation(blockShader.ID, "model");
+    int projLoc = glGetUniformLocation(blockShader.ID, "projection");
+    int viewLoc = glGetUniformLocation(blockShader.ID, "view");
+    int scaleLoc = glGetUniformLocation(blockShader.ID, "scale");
+    int selectedLoc = glGetUniformLocation(blockShader.ID, "selected");
 
     // render loop
     // -----------
@@ -251,7 +251,7 @@ int main()
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniform1f(selectedLoc, 1.0f);
         
-        shader.use();
+        blockShader.use();
         glBindVertexArray(VAO);
 
         glm::mat4 model(1.0f);
