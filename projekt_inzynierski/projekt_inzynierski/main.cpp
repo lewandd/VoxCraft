@@ -20,6 +20,7 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 void selectBlock();
 
@@ -51,6 +52,7 @@ bool selected = false;
 
 int side = 0;
 int choosedType = 0;
+float changeScroll = 0.0f;
 
 int main()
 {
@@ -78,6 +80,7 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetScrollCallback(window, scroll_callback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // glad: load all OpenGL function pointers
@@ -92,6 +95,7 @@ int main()
     // ------------------------------------
     Shader blockShader("block.vs", "block.fs");
     Shader targetShader("target.vs", "target.fs");
+    Shader interfaceShader("interface.vs", "interface.fs");
 
     // set up vertex data
     // ------------------
@@ -145,6 +149,15 @@ int main()
      0.02f,  0.0f,  0.0f,
      0.0f, -0.02f,  0.0f,
      0.0f,  0.02f,  0.0f,
+    };
+
+    float interface_vertices[] = {
+     0.1f,  0.0f,  0.0f, 1.0f, 0.0f,
+     0.0f,  0.1f,  0.0f, 0.0f, 1.0f,
+     0.0f,  0.0f,  0.0f, 0.0f, 0.0f,
+     0.1f,  0.0f,  0.0f, 1.0f, 0.0f,
+     0.1f,  0.1f,  0.0f, 1.0f, 1.0f,
+     0.0f,  0.1f,  0.0f, 0.0f, 1.0f
     };
 
     // generate data
@@ -247,6 +260,38 @@ int main()
     // unbind VAO
     glBindVertexArray(0);
 
+    // interface VAO
+
+    unsigned int interfaceVBO, interfaceVAO;
+    glGenVertexArrays(1, &interfaceVAO);
+    glGenBuffers(1, &interfaceVBO);
+    glBindVertexArray(interfaceVAO);
+
+
+    glBindBuffer(GL_ARRAY_BUFFER, interfaceVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(interface_vertices), interface_vertices, GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+
+    // connect texture to sampler in fragmentshader
+    int interfaceTexLoc = glGetUniformLocation(interfaceShader.ID, "tex");
+    glUniform1i(interfaceTexLoc, 0);
+
+    int interfaceLayerLoc = glGetUniformLocation(interfaceShader.ID, "layer");
+    glUniform1i(interfaceLayerLoc, 0);
+
+    glActiveTexture(GL_TEXTURE0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
     int modelLoc = glGetUniformLocation(blockShader.ID, "model");
     int projLoc = glGetUniformLocation(blockShader.ID, "projection");
     int viewLoc = glGetUniformLocation(blockShader.ID, "view");
@@ -255,6 +300,9 @@ int main()
 
     int targetColorLoc = glGetUniformLocation(targetShader.ID, "aColor");
     int targetSizeLoc = glGetUniformLocation(targetShader.ID, "aSize");
+
+    int interfaceTranslateLoc = glGetUniformLocation(interfaceShader.ID, "translate");
+    int interfaceSelectedLoc = glGetUniformLocation(interfaceShader.ID, "selected");
 
     // render loop
     // -----------
@@ -351,6 +399,23 @@ int main()
         glBindVertexArray(targetVAO);
 
         glDrawArrays(GL_LINES, 0, 4);
+
+        // interface
+
+        interfaceShader.use();
+
+        for (int i = 0; i < min(10, NUM_WORLD_TEXTURES); ++i) {
+            glUniform3f(interfaceTranslateLoc, -0.55 + (float)i*0.11, -0.99, -1.0);
+            glUniform1i(interfaceLayerLoc, 3*i);
+
+            if (choosedType == i)
+                glUniform1f(interfaceSelectedLoc, 1.0f);
+            else 
+                glUniform1f(interfaceSelectedLoc, 0.4f);
+
+            glBindVertexArray(interfaceVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
@@ -484,6 +549,21 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
             }
         }
     }
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    changeScroll -= yoffset;
+    if (changeScroll >= 1.0f) {
+        choosedType = min(choosedType + 1, NUM_WORLD_TEXTURES-1);
+        changeScroll = 0.0f;
+    }
+    else if (changeScroll <= -1.0f) {
+        choosedType = max(choosedType - 1, 0);
+        changeScroll = 0.0f;
+    }
+    camera.ProcessMouseScroll(yoffset);
+    
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
