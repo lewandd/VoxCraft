@@ -83,31 +83,6 @@ CHUNK* generate_chunk(int x, int y) {
             cho[1]->setFullBlock(i+1, (int)(hMap[i+1][j+1] * 16) + 2, j + 1, 1, MAX_LEVEL);
         }
     }
-
-    // prep vbo
-
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    
-    vector <int> vect;
-
-    int sum = 0;
-    for (int i = 0; i < 8; ++i) {
-        if (cho[i] != NULL) {
-            for (int lvl = 0; lvl < MAX_LEVEL + 1; ++lvl) {
-                for (int tt = 0; tt < 5; ++tt) {
-                    sum += cho[i]->fullBlocks[lvl][tt].size();
-                    for (int j = 0; j < cho[i]->fullBlocks[lvl][tt].size(); j++) {
-                        vect.push_back(cho[i]->fullBlocks[lvl][tt][j]->x);
-                    }
-                }
-            }
-        }
-    }
-    printf("%d\n", sum);
-    
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*sum, &vect[0], GL_STATIC_DRAW);
     
     // deallocate
 
