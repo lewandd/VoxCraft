@@ -99,66 +99,7 @@ int main()
 
     // set up vertex data
     // ------------------
-    float vertices[] = {
-    1.0f,   1.0f,   0.0f,   0.0f,   1.0f, 0.0f, // left side
-    1.0f,   0.0f,   0.0f,   0.0f,   0.0f, 0.0f, 
-    0.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f,
 
-    0.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f,
-    0.0f,   1.0f,   0.0f,   1.0f,   1.0f, 0.0f,
-    1.0f,   1.0f,   0.0f,   0.0f,   1.0f, 0.0f,
-
-    0.0f,   0.0f,   1.0f,   0.0f,   0.0f, 0.0f,// right side
-    1.0f,   0.0f,   1.0f,   1.0f,   0.0f, 0.0f,
-    1.0f,   1.0f,   1.0f,   1.0f,   1.0f, 0.0f,
-    1.0f,   1.0f,   1.0f,   1.0f,   1.0f, 0.0f,
-    0.0f,   1.0f,   1.0f,   0.0f,   1.0f, 0.0f,
-    0.0f,   0.0f,   1.0f,   0.0f,   0.0f, 0.0f,
-
-    0.0f,   1.0f,   1.0f,   1.0f,   1.0f, 0.0f, // front
-    0.0f,   1.0f,   0.0f,   0.0f,   1.0f, 0.0f,
-    0.0f,   0.0f,   0.0f,   0.0f,   0.0f, 0.0f,
-    0.0f,   0.0f,   0.0f,   0.0f,   0.0f, 0.0f,
-    0.0f,   0.0f,   1.0f,   1.0f,   0.0f, 0.0f,
-    0.0f,   1.0f,   1.0f,   1.0f,   1.0f, 0.0f,
-
-    1.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f, // back
-    1.0f,   1.0f,   0.0f,   1.0f,   1.0f, 0.0f,
-    1.0f,   1.0f,   1.0f,   0.0f,   1.0f, 0.0f,
-    1.0f,   1.0f,   1.0f,   0.0f,   1.0f, 0.0f,
-    1.0f,   0.0f,   1.0f,   0.0f,   0.0f, 0.0f,
-    1.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f,
-
-    0.0f,   0.0f,   0.0f,   0.0f,   0.0f, 1.0f, // down
-    1.0f,   0.0f,   0.0f,   1.0f,   0.0f, 1.0f,
-    1.0f,   0.0f,   1.0f,   1.0f,   1.0f, 1.0f,
-    1.0f,   0.0f,   1.0f,   1.0f,   1.0f, 1.0f,
-    0.0f,   0.0f,   1.0f,   0.0f,   1.0f, 1.0f,
-    0.0f,   0.0f,   0.0f,   0.0f,   0.0f, 1.0f,
-
-    1.0f,   1.0f,   1.0f,   1.0f,   0.0f, 2.0f, // up
-    1.0f,   1.0f,   0.0f,   1.0f,   1.0f, 2.0f,
-    0.0f,   1.0f,   0.0f,   0.0f,   1.0f, 2.0f,
-    0.0f,   1.0f,   0.0f,   0.0f,   1.0f, 2.0f,
-    0.0f,   1.0f,   1.0f,   0.0f,   0.0f, 2.0f,
-    1.0f,   1.0f,   1.0f,   1.0f,   0.0f, 2.0f,
-    };
-
-    float target_vertices[] = {
-    -0.02f,  0.0f,  0.0f,
-     0.02f,  0.0f,  0.0f,
-     0.0f, -0.02f,  0.0f,
-     0.0f,  0.02f,  0.0f,
-    };
-
-    float interface_vertices[] = {
-     0.1f,  0.0f,  0.0f, 1.0f, 0.0f,
-     0.0f,  0.1f,  0.0f, 0.0f, 1.0f,
-     0.0f,  0.0f,  0.0f, 0.0f, 0.0f,
-     0.1f,  0.0f,  0.0f, 1.0f, 0.0f,
-     0.1f,  0.1f,  0.0f, 1.0f, 1.0f,
-     0.0f,  0.1f,  0.0f, 0.0f, 1.0f
-    };
 
     // generate data
 
@@ -208,7 +149,7 @@ int main()
     glEnableVertexAttribArray(2);
 
     // textures load
-    unsigned int texture;
+
     glGenTextures(1, &texture); 
     glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
 
@@ -267,7 +208,6 @@ int main()
     glGenBuffers(1, &interfaceVBO);
     glBindVertexArray(interfaceVAO);
 
-
     glBindBuffer(GL_ARRAY_BUFFER, interfaceVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(interface_vertices), interface_vertices, GL_STATIC_DRAW);
 
@@ -292,10 +232,8 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    int modelLoc = glGetUniformLocation(blockShader.ID, "model");
     int projLoc = glGetUniformLocation(blockShader.ID, "projection");
     int viewLoc = glGetUniformLocation(blockShader.ID, "view");
-    int scaleLoc = glGetUniformLocation(blockShader.ID, "scale");
     int selectedLoc = glGetUniformLocation(blockShader.ID, "selected");
 
     int targetColorLoc = glGetUniformLocation(targetShader.ID, "aColor");
@@ -336,58 +274,26 @@ int main()
         glUniform1f(selectedLoc, 1.0f);
         
         glm::mat4 model(1.0f);
+        int sum = 0;
+        int sum_chunks = 0;
 
-        for (int lvl = MAX_LEVEL; lvl >= 0; --lvl) {
-            glUniform1f(scaleLoc, 1 << (MAX_LEVEL - lvl));
-
-            for (int tt = 0; tt < NUM_WORLD_TEXTURES; ++tt) {
-                glUniform1i(layerLoc, 3 * tt);
-
-                for (int chx = 0; chx < CHUNKS_COUNT; ++chx) {
-                    for (int chy = 0; chy < CHUNKS_COUNT; ++chy) {
-                        CHUNK* ch = chunk[chx][chy];
-                        float cdx = camera.Position.x - (chx * 16.0 + 8.0);
-                        float cdy = camera.Position.z - (chy * 16.0 + 8.0);
-                        if (cdx * cdx + cdy * cdy < 3200.0) {
-                            if (ch == NULL)
-                                ch = generate_chunk(chx, chy);
-
-                            for (int chz = 0; chz < 8; ++chz) {
-                                Octree* cho = ch->o[chz];
-                                if (cho != NULL) {
-                                    vector <OctreeNode*> cubes = cho->fullBlocks[lvl][tt];
-                                    for (int i = 0; i < (int)cubes.size(); ++i) {
-                                        OctreeNode* cube = cubes[i];
-                                        float dx = (camera.Position.x - (chx * 16.0 + cube->x));
-                                        float dy = (camera.Position.y - cube->y);
-                                        float dz = (camera.Position.z - (chy * 16.0 + cube->z));
-
-                                        if (dx * dx + dy * dy + dz * dz >= 10000.0f)
-                                            continue;
-
-                                        model[3][0] = cube->x + chx * 16;
-                                        model[3][1] = cube->y + chz * 16;
-                                        model[3][2] = cube->z + chy * 16;
-
-                                        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-                                        if (cube->isSelected())
-                                            glUniform1f(selectedLoc, 0.9f);
-
-                                        // draw triangle
-                                        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-                                        if (cube->isSelected())
-                                            glUniform1f(selectedLoc, 1.0f);
-                                    }
-                                }
-                            }
-                        
-                        }
+        for (int chx = 0; chx < CHUNKS_COUNT; ++chx) {
+            for (int chy = 0; chy < CHUNKS_COUNT; ++chy) {
+                CHUNK* ch = chunk[chx][chy];
+                float cdx = camera.Position.x - (chx * 16.0 + 8.0);
+                float cdy = camera.Position.z - (chy * 16.0 + 8.0);
+                if (cdx * cdx + cdy * cdy < 12000.0) {
+                    if (ch == NULL) {
+                        ch = generate_chunk(chx, chy);
                     }
+                    glBindVertexArray(ch->VAO);
+                    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, ch->size);
+                    sum_chunks++;
+                    sum += ch->size;
                 }
             }
         }
+        //cout << sum << " " << sum_chunks << endl;
         
         selectBlock();
 
@@ -487,6 +393,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
             CHUNK* ch = chunk[selected_chunk_x][selected_chunk_y];
             Octree* cho = ch->o[selected_octree];
             cho->remove(selected_x, selected_y, selected_z);
+            setVAO(selected_chunk_x, selected_chunk_y);
         }
     }
 
@@ -548,6 +455,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
                 Octree* cho = ch->o[final_selected_octree];
 
                 cho->add(final_selected_x, final_selected_y, final_selected_z, choosedType + 1);
+                setVAO(final_selected_chunk_x, final_selected_chunk_y);
             }
         }
     }

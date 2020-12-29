@@ -8,6 +8,9 @@
 struct CHUNK {
 public:
     Octree* o[8];
+    unsigned int VAO;
+    float* data;
+    int size;
 };
 
 // zmienne globalne
@@ -16,11 +19,75 @@ CHUNK* chunk[CHUNKS_COUNT][CHUNKS_COUNT];
 
 float** noise[NOISE_MAP_COUNT][NOISE_MAP_COUNT];
 
+unsigned int texture;
+
 // deklaracje funkcji
 
 void recSetMinMap(float*** minMap, int x, int y, int lvl);
 float*** getMinMap(float** hMap);
 CHUNK* generate_chunk(int x, int y);
+void setVAO(int x, int y);
+
+float vertices[] = {
+1.0f,   1.0f,   0.0f,   0.0f,   1.0f, 0.0f, // left side
+1.0f,   0.0f,   0.0f,   0.0f,   0.0f, 0.0f,
+0.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f,
+
+0.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f,
+0.0f,   1.0f,   0.0f,   1.0f,   1.0f, 0.0f,
+1.0f,   1.0f,   0.0f,   0.0f,   1.0f, 0.0f,
+
+0.0f,   0.0f,   1.0f,   0.0f,   0.0f, 0.0f,// right side
+1.0f,   0.0f,   1.0f,   1.0f,   0.0f, 0.0f,
+1.0f,   1.0f,   1.0f,   1.0f,   1.0f, 0.0f,
+1.0f,   1.0f,   1.0f,   1.0f,   1.0f, 0.0f,
+0.0f,   1.0f,   1.0f,   0.0f,   1.0f, 0.0f,
+0.0f,   0.0f,   1.0f,   0.0f,   0.0f, 0.0f,
+
+0.0f,   1.0f,   1.0f,   1.0f,   1.0f, 0.0f, // front
+0.0f,   1.0f,   0.0f,   0.0f,   1.0f, 0.0f,
+0.0f,   0.0f,   0.0f,   0.0f,   0.0f, 0.0f,
+0.0f,   0.0f,   0.0f,   0.0f,   0.0f, 0.0f,
+0.0f,   0.0f,   1.0f,   1.0f,   0.0f, 0.0f,
+0.0f,   1.0f,   1.0f,   1.0f,   1.0f, 0.0f,
+
+1.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f, // back
+1.0f,   1.0f,   0.0f,   1.0f,   1.0f, 0.0f,
+1.0f,   1.0f,   1.0f,   0.0f,   1.0f, 0.0f,
+1.0f,   1.0f,   1.0f,   0.0f,   1.0f, 0.0f,
+1.0f,   0.0f,   1.0f,   0.0f,   0.0f, 0.0f,
+1.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f,
+
+0.0f,   0.0f,   0.0f,   0.0f,   0.0f, 1.0f, // down
+1.0f,   0.0f,   0.0f,   1.0f,   0.0f, 1.0f,
+1.0f,   0.0f,   1.0f,   1.0f,   1.0f, 1.0f,
+1.0f,   0.0f,   1.0f,   1.0f,   1.0f, 1.0f,
+0.0f,   0.0f,   1.0f,   0.0f,   1.0f, 1.0f,
+0.0f,   0.0f,   0.0f,   0.0f,   0.0f, 1.0f,
+
+1.0f,   1.0f,   1.0f,   1.0f,   0.0f, 2.0f, // up
+1.0f,   1.0f,   0.0f,   1.0f,   1.0f, 2.0f,
+0.0f,   1.0f,   0.0f,   0.0f,   1.0f, 2.0f,
+0.0f,   1.0f,   0.0f,   0.0f,   1.0f, 2.0f,
+0.0f,   1.0f,   1.0f,   0.0f,   0.0f, 2.0f,
+1.0f,   1.0f,   1.0f,   1.0f,   0.0f, 2.0f,
+};
+
+float target_vertices[] = {
+-0.02f,  0.0f,  0.0f,
+ 0.02f,  0.0f,  0.0f,
+ 0.0f, -0.02f,  0.0f,
+ 0.0f,  0.02f,  0.0f,
+};
+
+float interface_vertices[] = {
+ 0.1f,  0.0f,  0.0f, 1.0f, 0.0f,
+ 0.0f,  0.1f,  0.0f, 0.0f, 1.0f,
+ 0.0f,  0.0f,  0.0f, 0.0f, 0.0f,
+ 0.1f,  0.0f,  0.0f, 1.0f, 0.0f,
+ 0.1f,  0.1f,  0.0f, 1.0f, 1.0f,
+ 0.0f,  0.1f,  0.0f, 0.0f, 1.0f
+};
 
 // implementacje funkcji
 
@@ -84,6 +151,8 @@ CHUNK* generate_chunk(int x, int y) {
         }
     }
     
+    setVAO(x, y);
+
     // deallocate
 
     for (int i = 0; i < 5; ++i) {
@@ -94,6 +163,92 @@ CHUNK* generate_chunk(int x, int y) {
     delete minMap;
 
     return ch;
+}
+
+void setVAO(int x, int y) {
+    CHUNK* ch = chunk[x][y];
+    Octree** cho = ch->o;
+
+    // instanceVBO
+
+    vector <float> vect;
+
+    int sum = 0;
+    for (int i = 0; i < 8; ++i) {
+        if (cho[i] != NULL) {
+            for (int lvl = 0; lvl < MAX_LEVEL + 1; ++lvl) {
+                for (int tt = 0; tt < 5; ++tt) {
+                    sum += cho[i]->fullBlocks[lvl][tt].size();
+                    for (int j = 0; j < cho[i]->fullBlocks[lvl][tt].size(); j++) {
+                        vect.push_back(cho[i]->fullBlocks[lvl][tt][j]->x + x * CHUNK_SIZE);
+                        vect.push_back(cho[i]->fullBlocks[lvl][tt][j]->y + i * CHUNK_SIZE);
+                        vect.push_back(cho[i]->fullBlocks[lvl][tt][j]->z + y * CHUNK_SIZE);
+                        vect.push_back(1 << (MAX_LEVEL - cho[i]->fullBlocks[lvl][tt][j]->level));
+                        //printf("lvl: %d\n", (MAX_LEVEL - cho[i]->fullBlocks[lvl][tt][j]->level));
+                        vect.push_back(cho[i]->fullBlocks[lvl][tt][j]->type);
+                        //vect.push_back(0.0f);//cho[i]->fullBlocks[lvl][tt][j]->type);
+                    }
+                }
+            }
+        }
+    }
+
+    ch->data = &vect[0];
+    ch->size = sum;
+
+    unsigned int instanceVBO;
+    glGenBuffers(1, &instanceVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 5 * sum, &ch->data[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // prep vbo
+
+    unsigned int VBO, VAO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBindVertexArray(VAO);
+
+
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // texture attribute
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    // side attribute
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(5 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    // 
+    glEnableVertexAttribArray(3);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glVertexAttribDivisor(3, 1);
+
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribDivisor(4, 1);
+
+    glEnableVertexAttribArray(5);
+    glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(4 * sizeof(float)));
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribDivisor(5, 1);
+
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+
+    glActiveTexture(GL_TEXTURE0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    ch->VAO = VAO;
 }
 
 float*** getMinMap(float** hMap) {
