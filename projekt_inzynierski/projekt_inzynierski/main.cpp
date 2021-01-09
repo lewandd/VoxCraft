@@ -54,15 +54,15 @@ int side = 0;
 int choosedType = 0;
 float changeScroll = 0.0f;
 
-int main()
-{
+int main() {
+
     // initialize glfw
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // creation glfw window
+    // create glfw window
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
 
     glfwMakeContextCurrent(window);
@@ -75,22 +75,10 @@ int main()
     // load GLAD
     gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
-    // build and compile shader program
-    // ------------------------------------
+    // create shader program
     Shader blockShader("block.vs", "block.fs");
     Shader targetShader("target.vs", "target.fs");
     Shader interfaceShader("interface.vs", "interface.fs");
-
-    // set up vertex data
-    // ------------------
-
-
-    // generate data
-
-    generate_chunk(0, 0);
-    generate_chunk(0, 1);
-    generate_chunk(1, 0);
-    generate_chunk(1, 1);
 
     // targetVAO
 
