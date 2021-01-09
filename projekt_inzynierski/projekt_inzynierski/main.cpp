@@ -97,29 +97,6 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    // blockVAO
-
-    unsigned int VBO, VAO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    // bind VAO
-    glBindVertexArray(VAO);
-
-    // bind VBO
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // texture attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(5 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
     // textures load
 
     glGenTextures(1, &texture); 
@@ -130,8 +107,6 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-
 
     int width, height, nrChannels;
     unsigned char** data = new unsigned char*[NUM_WORLD_TEXTURES *3];
@@ -166,14 +141,9 @@ int main() {
     for (int i = 0; i < NUM_WORLD_TEXTURES * 3; i++) {
         stbi_image_free(data[i]);
     }
-    
-    // unbind VBO
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // unbind VAO
-    glBindVertexArray(0);
 
     // interface VAO
+    // -------------
 
     unsigned int interfaceVBO, interfaceVAO;
     glGenVertexArrays(1, &interfaceVAO);
@@ -187,6 +157,7 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    // texture atribute
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
@@ -204,9 +175,11 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
+    // set uniforms
+    // -----------
+
     int projLoc = glGetUniformLocation(blockShader.ID, "projection");
     int viewLoc = glGetUniformLocation(blockShader.ID, "view");
-    int selectedLoc = glGetUniformLocation(blockShader.ID, "selected");
 
     int targetColorLoc = glGetUniformLocation(targetShader.ID, "aColor");
     int targetSizeLoc = glGetUniformLocation(targetShader.ID, "aSize");
@@ -219,33 +192,30 @@ int main() {
     glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
+
+        // get delta time
         float currentFrame = (float)glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // input
-        // -----
         processInput(window);
 
-        // render
-        // ------
         glEnable(GL_DEPTH_TEST);
         glClearColor(0.55f, 0.75f, 0.85f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);        
-        glm::mat4 view = camera.GetViewMatrix();
+        // render blocks
+        // -------------
 
         blockShader.use();
-        glBindVertexArray(VAO);
 
+        // set matrices
+        glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);        
+        glm::mat4 view = camera.GetViewMatrix();
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        glUniform1f(selectedLoc, 1.0f);
-        
-        glm::mat4 model(1.0f);
+
         int sum = 0;
         int sum_chunks = 0;
 
@@ -269,9 +239,11 @@ int main() {
         
         selectBlock();
 
-        // target
+        // render target
+        // -------------
 
         targetShader.use();
+
         glUniform3f(targetColorLoc, TARGET_COLOR_R, TARGET_COLOR_G, TARGET_COLOR_B);
         glUniform1f(targetSizeLoc, TARGET_SIZE);
         glLineWidth(TARGET_THICKNESS);
@@ -280,7 +252,8 @@ int main() {
 
         glDrawArrays(GL_LINES, 0, 4);
 
-        // interface
+        // render interface
+        // ----------------
 
         interfaceShader.use();
 
@@ -302,11 +275,6 @@ int main() {
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    // de-allocate
-    // ------------------------------------------------------------------------
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
