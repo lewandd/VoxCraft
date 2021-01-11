@@ -108,9 +108,9 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     int width, height, nrChannels;
-    unsigned char** data = new unsigned char*[NUM_WORLD_TEXTURES *3];
+    unsigned char** data = new unsigned char*[NUM_BLOCK_TEXTURES *3];
     stbi_set_flip_vertically_on_load(true);
-    for (int i = 0; i < NUM_WORLD_TEXTURES; i ++) {
+    for (int i = 0; i < NUM_BLOCK_TEXTURES; i ++) {
         string src = "textures/" + to_string(i) + "s.png";
         data[3*i] = stbi_load(src.c_str(), &width, &height, &nrChannels, 0);
         src = "textures/" + to_string(i) + "d.png";
@@ -119,9 +119,9 @@ int main() {
         data[3*i + 2] = stbi_load(src.c_str(), &width, &height, &nrChannels, 0);
     }
     
-    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, width, height, NUM_WORLD_TEXTURES * 3, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, width, height, NUM_BLOCK_TEXTURES * 3, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
     
-    for (int i = 0; i < NUM_WORLD_TEXTURES *3; i++) {
+    for (int i = 0; i < NUM_BLOCK_TEXTURES *3; i++) {
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, data[i]);
     }
 
@@ -137,7 +137,7 @@ int main() {
 
     glActiveTexture(GL_TEXTURE0);
 
-    for (int i = 0; i < NUM_WORLD_TEXTURES * 3; i++) {
+    for (int i = 0; i < NUM_BLOCK_TEXTURES * 3; i++) {
         stbi_image_free(data[i]);
     }
 
@@ -256,7 +256,7 @@ int main() {
 
         interfaceShader.use();
 
-        for (int i = 0; i < min(10, NUM_WORLD_TEXTURES); ++i) {
+        for (int i = 0; i < min(10, NUM_BLOCK_TEXTURES); ++i) {
             glUniform3f(interfaceTranslateLoc, -0.55 + (float)i*0.11, -0.99, -1.0);
             glUniform1i(interfaceLayerLoc, 3*i);
 
@@ -404,7 +404,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     changeScroll -= yoffset;
     if (changeScroll >= 1.0f) {
-        choosedType = min(choosedType + 1, NUM_WORLD_TEXTURES-1);
+        choosedType = min(choosedType + 1, NUM_BLOCK_TEXTURES-1);
         changeScroll = 0.0f;
     }
     else if (changeScroll <= -1.0f) {

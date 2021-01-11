@@ -35,7 +35,7 @@ const int NOISE_MAP_COUNT = TOTAL_SIZE / NOISE_MAP_SIZE;
 
 // Textures
 
-const int NUM_WORLD_TEXTURES = 5;
+const int NUM_BLOCK_TEXTURES = 5;
 
 // Target
 
