@@ -73,6 +73,8 @@
     <None Include="interface.fs">
       <Filter>Pliki źródłowe</Filter>
     </None>
+    <None Include="select.vs" />
+    <None Include="select.fs" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="projekt_inzynierski.rc">

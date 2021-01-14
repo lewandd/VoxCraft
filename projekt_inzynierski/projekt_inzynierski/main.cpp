@@ -42,7 +42,6 @@ float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
 // selected
-OctreeNode* selectedBlock = NULL;
 int selected_chunk_x = -1;
 int selected_chunk_y = -1;
 int selected_octree = -1;
@@ -97,6 +96,7 @@ int main() {
     Shader blockShader("block.vs", "block.fs");
     Shader targetShader("target.vs", "target.fs");
     Shader interfaceShader("interface.vs", "interface.fs");
+    Shader selectShader("select.vs", "select.fs");
 
     // targetVAO
 
@@ -107,6 +107,23 @@ int main() {
 
     glBindBuffer(GL_ARRAY_BUFFER, targetVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(target_vertices), target_vertices, GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    // select VAO
+
+    unsigned int selectVBO, selectVAO;
+    glGenVertexArrays(1, &selectVAO);
+    glGenBuffers(1, &selectVBO);
+    glBindVertexArray(selectVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, selectVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(select_vertices), select_vertices, GL_STATIC_DRAW);
 
     // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -204,6 +221,10 @@ int main() {
     int interfaceTranslateLoc = glGetUniformLocation(interfaceShader.ID, "translate");
     int interfaceSelectedLoc = glGetUniformLocation(interfaceShader.ID, "selected");
 
+    int selectProjLoc = glGetUniformLocation(blockShader.ID, "projection");
+    int selectViewLoc = glGetUniformLocation(blockShader.ID, "view");
+    int selectTransformLoc = glGetUniformLocation(selectShader.ID, "transform");
+
     // set chunks
     nearChunks = new CHUNK ** [numVisibleChunks];
     for (int i = 0; i < numVisibleChunks; ++i) {
@@ -278,6 +299,49 @@ int main() {
         //cout << sum << " " << sum_chunks << endl;
         
         selectBlock();
+
+        // render select
+        // -------------
+
+        if (selected) {
+            selectShader.use();
+            //cout << "side " << side << endl;
+            glm::mat4 trans = glm::mat4(1.0f);
+            trans = glm::translate(trans, glm::vec3(16*selected_chunk_x + selected_x, 16 * selected_octree + selected_y, 16 * selected_chunk_y + selected_z));
+            //trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+
+            switch (side) {
+                case 1: // prawo
+                    trans = glm::translate(trans, glm::vec3(-0.01f, 0.0f, 1.0f));
+                    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+                    break;
+                case 2: // lewo
+                    trans = glm::translate(trans, glm::vec3(1.01f, 0.0f, 1.0f));
+                    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+                    break;
+                case 3: // dol
+                    trans = glm::translate(trans, glm::vec3(0.0f, -0.01f, 0.0f));
+                    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
+                    break;
+                case 4: // gora
+                    trans = glm::translate(trans, glm::vec3(0.0f, 1.01f, 0.0f));
+                    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
+                    break;
+                case 5: // przod
+                    trans = glm::translate(trans, glm::vec3(0.0f, 0.0f, -0.01f));
+                    break;
+                case 6: // tyl
+                    trans = glm::translate(trans, glm::vec3(0.0f, 0.0f, 1.01f));
+                    break;
+            }
+
+            glUniformMatrix4fv(selectProjLoc, 1, GL_FALSE, glm::value_ptr(proj));
+            glUniformMatrix4fv(selectViewLoc, 1, GL_FALSE, glm::value_ptr(view));
+            glUniformMatrix4fv(selectTransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+        
+            glBindVertexArray(selectVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
 
         // render target
         // -------------
@@ -550,10 +614,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 }
 
 void selectBlock() {
-    if (selectedBlock != NULL)
-        selectedBlock->unsetSeleted();
-    selectedBlock = NULL;
-
     selected_chunk_x = -1;
     selected_chunk_y = -1;
     selected_octree = -1;

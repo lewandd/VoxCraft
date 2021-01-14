@@ -7,8 +7,6 @@ class Octree {
 public:
     OctreeNode* root = new OctreeNode(0, 0, 0, 0, 0);
     vector <OctreeNode*> fullBlocks[MAX_LEVEL+1][5];
-    OctreeNode* selected = NULL;
-    int selected_x, selected_y, selected_z;
 
     void addMinMap(float ***minMap, int lvl, int x, int y, int z, int type, int z0) {
         if (lvl >= 0) {
@@ -146,33 +144,6 @@ public:
             blocks[lvl]->type = 0;
         }
 
-    }
-
-    bool existSelected() {
-        return selected != NULL;
-    }
-
-    void unsetSelected() {
-        if (existSelected()) {
-            selected->unsetSeleted();
-            selected = NULL;
-        }
-    }
-
-    OctreeNode* setSelected(int x, int y, int z) {
-        unsetSelected();
-
-        selected = getBlock(x, y, z);
-        selected->setSeleted();
-        selected_x = x;
-        selected_y = y;
-        selected_z = z;
-
-        return selected;
-    }
-
-    OctreeNode* getSelected() {
-        return selected;
     }
 
     OctreeNode* getBlock(int x, int y, int z) {

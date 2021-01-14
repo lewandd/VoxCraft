@@ -169,6 +169,8 @@
     <None Include="block.vs" />
     <None Include="interface.fs" />
     <None Include="interface.vs" />
+    <None Include="select.fs" />
+    <None Include="select.vs" />
     <None Include="target.fs" />
     <None Include="target.vs" />
   </ItemGroup>

@@ -31,7 +31,6 @@ public:
     int size;
     int max_size;
     int ind;
-    bool selected = false;
 
     OctreeNode(int level, int type, int x, int y, int z) {
         for (int i = 0; i < 8; ++i)
@@ -47,18 +46,6 @@ public:
 
     bool isFull() {
         return size == max_size;
-    }
-
-    bool isSelected() {
-        return selected;
-    }
-
-    void setSeleted() {
-        selected = true;
-    }
-
-    void unsetSeleted() {
-        selected = false;
     }
 
     int isEmpty() {

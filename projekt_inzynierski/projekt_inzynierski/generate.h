@@ -94,6 +94,15 @@ float interface_vertices[] = {
  0.0f,  0.1f,  0.0f, 0.0f, 1.0f
 };
 
+float select_vertices[] = {
+    0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    1.0f, 1.0f, 0.0f,
+    1.0f, 1.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 0.0f,
+};
+
 // implementacje funkcji
 
 void constructor_chunk(CHUNK* ch) {
