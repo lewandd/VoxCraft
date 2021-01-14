@@ -446,14 +446,14 @@ void selectBlock() {
     selected_z = -1;
     selected = false;
 
-    float dep;
-    glReadPixels(400, 400, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &dep);
-    float z = 1.0f / (dep * (1.0f / 100.0f - 1.0f / 0.1f) + 1.0f / 0.1f);
+    float depth;
+    glReadPixels(400, 400, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+    float distance = 1.0f / (depth * (1.0f / 100.0f - 1.0f / 0.1f) + 1.0f / 0.1f);
 
-    glm::vec3 lookAt = camera.Position + camera.Front * z;
+    glm::vec3 lookAt = camera.Position + camera.Front * distance;
     //printf("exactly (%8.5f, %8.5f, %8.5f) ", lookAt.x, lookAt.y, lookAt.z);
 
-    if (z < 99.9f) {
+    if (distance < 99.9f) {
         glm::vec3 dl = glm::vec3(round(lookAt.x) - lookAt.x, round(lookAt.y) - lookAt.y, round(lookAt.z) - lookAt.z);
 
         if ((abs(dl.x) < abs(dl.y)) && (abs(dl.x) < abs(dl.z))) {
