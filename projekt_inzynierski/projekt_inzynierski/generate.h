@@ -95,6 +95,8 @@ CHUNK* generate_chunk(int x, int y) {
     chunk[x][y] = new CHUNK();
     CHUNK* ch = chunk[x][y];
     Octree** cho = ch->o;
+    for (int i = 0; i < 8; ++i)
+        chunk[x][y]->o[i] = NULL;
 
     // stone layer
 
@@ -155,12 +157,7 @@ CHUNK* generate_chunk(int x, int y) {
 
     // deallocate
 
-    for (int i = 0; i < 5; ++i) {
-        for (int j = 0; j < MAX_DIM_SIZE >> i; ++j)
-            delete minMap[i][j];
-        delete minMap[i];
-    }
-    delete minMap;
+    delete[] minMap;
 
     return ch;
 }
