@@ -316,12 +316,12 @@ int main() {
                     trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
                     break;
                 case 2: // lewo
-                    trans = glm::translate(trans, glm::vec3(1.01f, 0.0f, 1.0f));
-                    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+                    trans = glm::translate(trans, glm::vec3(1.01f, 0.0f, 0.0f));
+                    trans = glm::rotate(trans, glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0));
                     break;
                 case 3: // dol
-                    trans = glm::translate(trans, glm::vec3(0.0f, -0.01f, 0.0f));
-                    trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
+                    trans = glm::translate(trans, glm::vec3(0.0f, -0.01f, 1.0f));
+                    trans = glm::rotate(trans, glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
                     break;
                 case 4: // gora
                     trans = glm::translate(trans, glm::vec3(0.0f, 1.01f, 0.0f));
@@ -331,7 +331,9 @@ int main() {
                     trans = glm::translate(trans, glm::vec3(0.0f, 0.0f, -0.01f));
                     break;
                 case 6: // tyl
-                    trans = glm::translate(trans, glm::vec3(0.0f, 0.0f, 1.01f));
+                    trans = glm::translate(trans, glm::vec3(1.0f, 0.0f, 1.01f));
+                    trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+                    
                     break;
             }
 
