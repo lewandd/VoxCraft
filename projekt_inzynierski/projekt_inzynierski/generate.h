@@ -169,6 +169,8 @@ void change_chunk(CHUNK* ch, int x, int y) {
     // delete old chunk data
     delete_chunk(ch);
     
+    *(ch->data_size) = 0;
+
     ch->x = x;
     ch->y = y;
     ch->set = true;
