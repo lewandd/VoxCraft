@@ -6,7 +6,17 @@ class Octree {
 
 public:
     OctreeNode* root = new OctreeNode(0, 0, 0, 0, 0);
-    vector <OctreeNode*> fullBlocks[MAX_LEVEL+1][5];
+    float* data;
+    int* data_size;
+    int x, y, o;
+
+    Octree(float* data_, int* data_size_, int x_, int y_, int o_) {
+        this->data = data_;
+        this->data_size = data_size_;
+        this->x = x_;
+        this->y = y_;
+        this->o = o_;
+    }
 
     void addMinMap(float ***minMap, int lvl, int x, int y, int z, int type, int z0) {
         if (lvl >= 0) {
@@ -185,14 +195,7 @@ public:
     }
 
     void deleteAll() {
-        deleteRec(root);
-
-        for (int i = 0; i < MAX_LEVEL + 1; ++i) {
-            for (int j = 0; j < 5; ++j) {
-                fullBlocks[i][j].clear();
-            }
-        }
-        
+        deleteRec(root);     
     }
 
     void deleteRec(OctreeNode* tmp) {
@@ -206,14 +209,25 @@ public:
 
 private:
     void addToFullBlocks(OctreeNode* n) {
-        fullBlocks[n->getLevel()][n->getType()-1].push_back(n);
-        n->ind = fullBlocks[n->getLevel()][n->getType()-1].size() - 1;
+        
+        n->ind = *data_size;
+
+        data[*data_size] = n->x + 16*x;
+        data[*data_size+1] = n->y + 16*o;
+        data[*data_size+2] = n->z + 16*y;
+        data[*data_size+3] = 1 << (MAX_LEVEL - n->level);
+        data[*data_size+4] = n->type;
+        *data_size = *data_size + 5;
     }
 
     void deleteFromFullBlocks(OctreeNode* n) {
-        fullBlocks[n->getLevel()][n->getType()-1].back()->ind = n->ind;
-        fullBlocks[n->getLevel()][n->getType()-1][n->ind] = fullBlocks[n->getLevel()][n->getType()-1].back();
-        fullBlocks[n->getLevel()][n->getType()-1].pop_back();
+        data[n->ind] = data[*data_size-5];
+        data[n->ind + 1] = data[*data_size - 4];
+        data[n->ind + 2] = data[*data_size - 3];
+        data[n->ind + 3] = data[*data_size - 2];
+        data[n->ind + 4] = data[*data_size - 1];
+        
+        *data_size = *data_size - 5;
         n->ind = -1;
     }
 

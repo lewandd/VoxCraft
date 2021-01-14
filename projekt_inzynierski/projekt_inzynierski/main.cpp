@@ -291,7 +291,7 @@ int main() {
             CHUNK* ch = visibleChunks[i];
 
             glBindVertexArray(ch->VAO);
-            glDrawArraysInstanced(GL_TRIANGLES, 0, 36, *(ch->data_size));
+            glDrawArraysInstanced(GL_TRIANGLES, 0, 36, *(ch->data_size)/5);
 
             sum_chunks++;
             sum += *(ch->data_size);
@@ -567,7 +567,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
                     }
 
                     if (ch->o[final_selected_octree] == NULL)
-                        ch->o[final_selected_octree] = new Octree();
+                        ch->o[final_selected_octree] = new Octree(ch->data, ch->data_size, ch->x, ch->y, final_selected_octree);
 
                     if (ch != NULL) {
                         ch->o[final_selected_octree]->add(final_selected_x, final_selected_y, final_selected_z, choosedType + 1);
