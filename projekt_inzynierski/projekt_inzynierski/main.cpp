@@ -23,6 +23,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 void selectBlock();
+void updateVisibleChunks();
 
 //CHUNK* generate_chunk(int x, int y);
 
@@ -53,6 +54,13 @@ bool selected = false;
 int side = 0;
 int choosedType = 0;
 float changeScroll = 0.0f;
+
+// visible chunks
+const int halfVisNum = 7;
+const int numVisibleChunks = 2 * halfVisNum + 1;
+CHUNK*** nearChunks;
+vector <CHUNK*> visibleChunks;
+vector <CHUNK*> unvisibleChunks;
 
 int main() {
 
@@ -186,6 +194,22 @@ int main() {
     int interfaceTranslateLoc = glGetUniformLocation(interfaceShader.ID, "translate");
     int interfaceSelectedLoc = glGetUniformLocation(interfaceShader.ID, "selected");
 
+    // set chunks
+    nearChunks = new CHUNK ** [numVisibleChunks];
+    for (int i = 0; i < numVisibleChunks; ++i) {
+        nearChunks[i] = new CHUNK * [numVisibleChunks];
+        for (int j = 0; j < numVisibleChunks; ++j) {
+            nearChunks[i][j] = new CHUNK;
+            nearChunks[i][j]->set = false;
+        }
+    }
+
+    for (int i = 0; i < numVisibleChunks; ++i) {
+        for (int j = 0; j < numVisibleChunks; ++j) {
+            unvisibleChunks.push_back(nearChunks[i][j]);
+        }
+    }
+
     // fps
     float fpsLast = 0.0f;
     float fpsFrames = 0.0f;
@@ -227,24 +251,19 @@ int main() {
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
+        updateVisibleChunks();
+
         int sum = 0;
         int sum_chunks = 0;
 
-        for (int chx = 0; chx < CHUNKS_COUNT; ++chx) {
-            for (int chy = 0; chy < CHUNKS_COUNT; ++chy) {
-                CHUNK* ch = chunk[chx][chy];
-                float cdx = camera.Position.x - (chx * 16.0 + 8.0);
-                float cdy = camera.Position.z - (chy * 16.0 + 8.0);
-                if (cdx * cdx + cdy * cdy < 12000.0) {
-                    if (ch == NULL) {
-                        ch = generate_chunk(chx, chy);
-                    }
-                    glBindVertexArray(ch->VAO);
-                    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, ch->size);
-                    sum_chunks++;
-                    sum += ch->size;
-                }
-            }
+        for (int i = 0; i < (int)visibleChunks.size(); ++i) {
+            CHUNK* ch = visibleChunks[i];
+
+            glBindVertexArray(ch->VAO);
+            glDrawArraysInstanced(GL_TRIANGLES, 0, 36, ch->size);
+
+            sum_chunks++;
+            sum += ch->size;
         }
         //cout << sum << " " << sum_chunks << endl;
         
@@ -291,6 +310,68 @@ int main() {
     // ------------------------------------------------------------------
     glfwTerminate();
     return 0;
+}
+
+void updateVisibleChunks() {
+    int chunk_x = camera.Position.x / 16;
+    int chunk_y = camera.Position.z / 16;
+
+    // clear near buffor
+    for (int i = 0; i < numVisibleChunks; ++i)
+        for (int j = 0; j < numVisibleChunks; ++j) 
+            nearChunks[i][j] = NULL;
+
+    // update visible vector (remove)
+    for (int i = 0; i < (int)visibleChunks.size(); ++i) {
+        float cdx = camera.Position.x - (visibleChunks[i]->x * 16.0 + 8.0);
+        float cdy = camera.Position.z - (visibleChunks[i]->y * 16.0 + 8.0);
+        if (cdx * cdx + cdy * cdy > 12000.0) {
+            unvisibleChunks.push_back(visibleChunks[i]);
+            visibleChunks.erase(visibleChunks.begin() + i);
+            i--;
+        }
+    }
+
+    // update near buffor - add already visible
+    for (int i = 0; i < (int)visibleChunks.size(); ++i)
+        nearChunks[visibleChunks[i]->x - chunk_x + halfVisNum][visibleChunks[i]->y - chunk_y + halfVisNum] = visibleChunks[i];
+
+    // update near buffor - add new visible
+    for (int i = -halfVisNum; i <= halfVisNum; ++i) {
+        for (int j = -halfVisNum; j <= halfVisNum; ++j) {
+
+            // in a chunks available pos
+            if ((chunk_x + i) >= 0 && (chunk_x + i) < CHUNKS_COUNT && (chunk_y + j) >= 0 && (chunk_y + j) < CHUNKS_COUNT) {
+
+                // empty pos
+                if (nearChunks[i + halfVisNum][j + halfVisNum] == NULL) {
+                    float cdx = camera.Position.x - ((chunk_x + i) * 16.0 + 8.0);
+                    float cdy = camera.Position.z - ((chunk_y + j) * 16.0 + 8.0);
+
+                    // near (should be added)
+                    if (cdx * cdx + cdy * cdy < 12000.0) {
+
+                        if (!unvisibleChunks.empty()) {
+                            // update some unvisible CHUNK and add to visible
+
+                            if (unvisibleChunks[0] != NULL)
+                                delete_chunk(unvisibleChunks[0]);
+                            unvisibleChunks[0] = generate_chunk(chunk_x + i, chunk_y + j);
+                            unvisibleChunks[0]->set = true;
+
+                            unvisibleChunks[0]->x = chunk_x + i;
+                            unvisibleChunks[0]->y = chunk_y + j;
+                            visibleChunks.push_back(unvisibleChunks[0]);
+                            nearChunks[i + halfVisNum][j + halfVisNum] = unvisibleChunks[0];
+                            unvisibleChunks.erase(unvisibleChunks.begin());
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
