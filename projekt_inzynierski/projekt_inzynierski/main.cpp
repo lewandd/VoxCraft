@@ -62,6 +62,16 @@ CHUNK*** nearChunks;
 vector <CHUNK*> visibleChunks;
 vector <CHUNK*> unvisibleChunks;
 
+bool compareChunks(CHUNK* ch1, CHUNK* ch2) {
+    float cdx1 = camera.Position.x - (ch1->x * 16.0 + 8.0);
+    float cdy1 = camera.Position.z - (ch1->y * 16.0 + 8.0);
+
+    float cdx2 = camera.Position.x - (ch2->x * 16.0 + 8.0);
+    float cdy2 = camera.Position.z - (ch2->y * 16.0 + 8.0);
+    
+    return (cdx1*cdx1 + cdy1 * cdy1 < cdx2 * cdx2 + cdy2 * cdy2);
+}
+
 int main() {
 
     // initialize glfw
@@ -372,6 +382,8 @@ void updateVisibleChunks() {
         }
     }
 
+    // sort
+    sort(visibleChunks.begin(), visibleChunks.end(), compareChunks);
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
