@@ -186,12 +186,24 @@ int main() {
     int interfaceTranslateLoc = glGetUniformLocation(interfaceShader.ID, "translate");
     int interfaceSelectedLoc = glGetUniformLocation(interfaceShader.ID, "selected");
 
+    // fps
+    float fpsLast = 0.0f;
+    float fpsFrames = 0.0f;
+
     // render loop
     // -----------
     glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     while (!glfwWindowShouldClose(window)) {
+
+        // count fps
+        ++fpsFrames;
+        if ((float)glfwGetTime() - fpsLast > 0.5f) {
+            printf("FPS: %f\n", fpsFrames/((float)glfwGetTime() - fpsLast));
+            fpsLast = (float)glfwGetTime();
+            fpsFrames = 0.0f;
+        }
 
         // get delta time
         float currentFrame = (float)glfwGetTime();
