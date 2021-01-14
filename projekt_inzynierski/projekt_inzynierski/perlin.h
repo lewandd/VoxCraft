@@ -22,7 +22,7 @@ private:
     int vec_type; // typ losowanych wektorow
     int size; // rozmiar pola
     int grid_size; // rozmiar kratki z siatki
-    int grid_count; // liczba kratek w siatce
+    int frequency;
     float** all;
     vec** grid = NULL; // siatka wektorów
     float*** minMap = NULL;
@@ -62,11 +62,12 @@ public:
         size = _field_size;
         grid_size = _grid_size;
         vec_type = _vec_type;
-        grid_count = size / grid_size + 1;
+        frequency = size / grid_size;
+       
 
-        grid = new vec * [grid_count];
-        for (int i = 0; i < grid_count; ++i)
-            grid[i] = new vec[grid_count];
+        grid = new vec * [frequency+1];
+        for (int i = 0; i < frequency+1; ++i)
+            grid[i] = new vec[frequency+1];
     }
 
     void setSeed(int _seedx, int _seedy) {
@@ -79,29 +80,29 @@ public:
     void setGrid() {
         srand(200*seedx + seedy);
         rand();
-        for (int i = 0; i < grid_count-1; ++i) {
-            for (int j = 0; j < grid_count-1; ++j) {
+        for (int i = 0; i < frequency; ++i) {
+            for (int j = 0; j < frequency; ++j) {
                 grid[i][j] = randVec();
             }
         }
         
         srand((seedx+1) * 200 + seedy);
         rand();
-        for (int i = 0; i < grid_count-1; ++i) {
-            grid[i][grid_count - 1] = randVec();
-            for (int j = 0; j < grid_count - 2; ++j)
+        for (int i = 0; i < frequency; ++i) {
+            grid[i][frequency] = randVec();
+            for (int j = 0; j < frequency - 1; ++j)
                 randVec();
         }
         
         srand((seedx) * 200 + (seedy+1));
         rand();
-        for (int j = 0; j < grid_count - 1; ++j) {
-            grid[grid_count - 1][j] = randVec();
+        for (int j = 0; j < frequency; ++j) {
+            grid[frequency][j] = randVec();
         }
         
         srand((seedx + 1) * 200 + (seedy + 1));
         rand();
-        grid[grid_count - 1][grid_count - 1] = randVec();
+        grid[frequency][frequency] = randVec();
         
     }
 
