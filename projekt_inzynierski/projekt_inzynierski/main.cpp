@@ -231,7 +231,6 @@ int main() {
         nearChunks[i] = new CHUNK * [numVisibleChunks];
         for (int j = 0; j < numVisibleChunks; ++j) {
             nearChunks[i][j] = new CHUNK;
-            constructor_chunk(nearChunks[i][j]);
         }
     }
 
@@ -430,7 +429,7 @@ void updateVisibleChunks() {
                         if (!unvisibleChunks.empty()) {
                             // update some unvisible CHUNK and add to visible
 
-                            change_chunk(unvisibleChunks[0], chunk_x + i, chunk_y + j);
+                            unvisibleChunks[0]->setNew(chunk_x + i, chunk_y + j);
 
                             visibleChunks.push_back(unvisibleChunks[0]);
                             nearChunks[i + halfVisNum][j + halfVisNum] = unvisibleChunks[0];
@@ -504,8 +503,9 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
                 }
             }
             if (ch != NULL) {
-                ch->o[selected_octree]->remove(selected_x, selected_y, selected_z);
-                update_chunk(ch);
+                int type = ch->o[selected_octree]->remove(selected_x, selected_y, selected_z);
+                changes[ch->x][ch->y].action.push_back(vec6(0, selected_octree, selected_x, selected_y, selected_z, type));
+                ch->update();
             }
         }
     }
@@ -573,7 +573,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
                     if (ch != NULL) {
                         ch->o[final_selected_octree]->add(final_selected_x, final_selected_y, final_selected_z, choosedType + 1);
-                        update_chunk(ch);
+                        changes[ch->x][ch->y].action.push_back(vec6(1, final_selected_octree, final_selected_x, final_selected_y, final_selected_z, choosedType + 1));
+                        ch->update();
                     }
                 }
 

@@ -5,20 +5,29 @@
 
 // struktury
 
-struct CHUNK {
-public:
-    Octree* o[8];
-    unsigned int VAO;
-    unsigned int instanceVBO;
-    float* data;
-    int* data_size;
-    int x, y;
-    bool set;
+struct vec6 {
+    int mode;
+    int octree;
+    int x;
+    int y;
+    int z;
+    int type;
+
+    vec6(int z1, int z2, int z3, int z4, int z5, int z6) {
+        mode = z1;
+        octree = z2;
+        x = z3;
+        y = z4;
+        z = z5;
+        type = z6;
+    }
 };
 
-// zmienne globalne
+struct CHANGE {
+    vector<vec6> action;
+};
 
-CHUNK* chunk[CHUNKS_COUNT][CHUNKS_COUNT];
+CHANGE changes[CHUNKS_COUNT][CHUNKS_COUNT];
 
 float** noise[NOISE_MAP_COUNT][NOISE_MAP_COUNT];
 
@@ -28,10 +37,7 @@ unsigned int texture;
 
 void recSetMinMap(float*** minMap, int x, int y, int lvl);
 float*** getMinMap(float** hMap);
-CHUNK* generate_chunk(int x, int y);
-void setVAO(int x, int y);
-void delete_chunk(CHUNK*);
-void update_chunk(CHUNK*);
+
 
 float vertices[] = {
 //      position          texture     side
@@ -103,161 +109,184 @@ float select_vertices[] = {
     0.0f, 0.0f, 0.0f,
 };
 
-// implementacje funkcji
+class CHUNK {
+public:
+    Octree* o[8];
+    unsigned int VAO;
+    unsigned int instanceVBO;
+    float* data;
+    int* data_size;
+    int x, y;
+    bool set;
 
-void constructor_chunk(CHUNK* ch) {
-    int max_size = 10000;// 5 * 16 * 16 * 16 * 8 * 0.5;
-    ch->data = new float[max_size];
-    ch->set = false;
-    ch->data_size = new int;
-    *(ch->data_size) = 0;
+    CHUNK() {
+        int max_size = 10000;// 5 * 16 * 16 * 16 * 8 * 0.5;
+        this->data = new float[max_size];
+        this->set = false;
+        this->data_size = new int;
+        *(this->data_size) = 0;
 
-    // instanceVBO
+        // instanceVBO
 
-    glGenBuffers(1, &ch->instanceVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, ch->instanceVBO);
+        glGenBuffers(1, &this->instanceVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, this->instanceVBO);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * max_size, ch->data, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * max_size, this->data, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    // prep vbo
+        // prep vbo
 
-    unsigned int VBO;
-    glGenVertexArrays(1, &ch->VAO);
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBindVertexArray(ch->VAO);
+        unsigned int VBO;
+        glGenVertexArrays(1, &this->VAO);
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBindVertexArray(this->VAO);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+        // position attribute
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
 
-    // texture attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+        // texture attribute
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
 
-    // side attribute
-    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(5 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+        // side attribute
+        glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(5 * sizeof(float)));
+        glEnableVertexAttribArray(2);
 
-    // 
-    glBindBuffer(GL_ARRAY_BUFFER, ch->instanceVBO);
+        // 
+        glBindBuffer(GL_ARRAY_BUFFER, this->instanceVBO);
 
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glVertexAttribDivisor(3, 1);
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glVertexAttribDivisor(3, 1);
 
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glVertexAttribDivisor(4, 1);
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+        glVertexAttribDivisor(4, 1);
 
-    glEnableVertexAttribArray(5);
-    glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(4 * sizeof(float)));
-    glVertexAttribDivisor(5, 1);
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(4 * sizeof(float)));
+        glVertexAttribDivisor(5, 1);
 
-    glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
 
-    glActiveTexture(GL_TEXTURE0);
+        glActiveTexture(GL_TEXTURE0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-}
-
-void change_chunk(CHUNK* ch, int x, int y) {
-    // delete old chunk data
-    delete_chunk(ch);
-    
-    *(ch->data_size) = 0;
-
-    ch->x = x;
-    ch->y = y;
-    ch->set = true;
-
-    // generate data
-    for (int i = 0; i < 8; ++i)
-        ch->o[i] = NULL;
-
-    Octree** cho = ch->o;
-    cho[0] = new Octree(ch->data, ch->data_size, ch->x, ch->y, 0);
-    cho[0]->setFullBlock(0, 0, 0, 3, MAX_LEVEL - 4);
-    
-    // stone top layer
-
-    int noise_x = (x * CHUNK_SIZE) / NOISE_MAP_SIZE;
-    int noise_y = (y * CHUNK_SIZE) / NOISE_MAP_SIZE;
-    if (noise[noise_x][noise_y] == NULL) {
-        Perlin p(NOISE_MAP_SIZE, FREQ1, 1);
-        p.setSeed(noise_x, noise_y);
-        noise[noise_x][noise_y] = p.getAll();
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
     }
-    
-    float** hMap;
-    hMap = new float* [CHUNK_SIZE];
-    for (int i = 0; i < CHUNK_SIZE; ++i)
-        hMap[i] = new float[CHUNK_SIZE];
 
-    for (int i = 0; i < CHUNK_SIZE; ++i) {
-        for (int j = 0; j < CHUNK_SIZE; ++j) {
-            hMap[i][j] = noise[noise_x][noise_y][(x * CHUNK_SIZE) % NOISE_MAP_SIZE + i][(y * CHUNK_SIZE) % NOISE_MAP_SIZE + j];
+    void setNew(int x_, int y_) {
+        // delete old chunk data
+        clear();
+
+        this->x = x_;
+        this->y = y_;
+
+        *(data_size) = 0;
+
+        set = true;
+
+        // generate data
+        for (int i = 0; i < 8; ++i)
+            o[i] = NULL;
+
+        o[0] = new Octree(data, data_size, x, y, 0);
+        o[0]->setFullBlock(0, 0, 0, 3, MAX_LEVEL - 4);
+
+        // stone top layer
+
+        int noise_x = (x * CHUNK_SIZE) / NOISE_MAP_SIZE;
+        int noise_y = (y * CHUNK_SIZE) / NOISE_MAP_SIZE;
+        if (noise[noise_x][noise_y] == NULL) {
+            Perlin p(NOISE_MAP_SIZE, FREQ1, 1);
+            p.setSeed(noise_x, noise_y);
+            noise[noise_x][noise_y] = p.getAll();
         }
-    }
-    float*** minMap = getMinMap(hMap);
-    cho[1] = new Octree(ch->data, ch->data_size, ch->x, ch->y, 1);
-    cho[1]->addMinMap(minMap, 4, 0, 0, 0, 3, 0);
 
-    // dirt top layer
-    for (int i = 0; i < MAX_DIM_SIZE; i += 2) {
-        for (int j = 0; j < MAX_DIM_SIZE; j += 2) {
-            if (SAME((int)(16 * hMap[i][j]), (int)(16 * hMap[i][j + 1]), (int)(16 * hMap[i + 1][j]), (int)(16 * hMap[i + 1][j + 1])) && ((int)(16 * hMap[i][j]) % 2 == 0)) {
-                cho[1]->setFullBlock(i, (int)(hMap[i][j] * 16) + 16, j, 2, MAX_LEVEL - 1);
+        float** hMap;
+        hMap = new float* [CHUNK_SIZE];
+        for (int i = 0; i < CHUNK_SIZE; ++i)
+            hMap[i] = new float[CHUNK_SIZE];
+
+        for (int i = 0; i < CHUNK_SIZE; ++i) {
+            for (int j = 0; j < CHUNK_SIZE; ++j) {
+                hMap[i][j] = noise[noise_x][noise_y][(x * CHUNK_SIZE) % NOISE_MAP_SIZE + i][(y * CHUNK_SIZE) % NOISE_MAP_SIZE + j];
+            }
+        }
+        float*** minMap = getMinMap(hMap);
+        o[1] = new Octree(data, data_size, x, y, 1);
+        o[1]->addMinMap(minMap, 4, 0, 0, 0, 3, 0);
+
+        // dirt top layer
+        for (int i = 0; i < MAX_DIM_SIZE; i += 2) {
+            for (int j = 0; j < MAX_DIM_SIZE; j += 2) {
+                if (SAME((int)(16 * hMap[i][j]), (int)(16 * hMap[i][j + 1]), (int)(16 * hMap[i + 1][j]), (int)(16 * hMap[i + 1][j + 1])) && ((int)(16 * hMap[i][j]) % 2 == 0)) {
+                    o[1]->setFullBlock(i, (int)(hMap[i][j] * 16) + 16, j, 2, MAX_LEVEL - 1);
+                }
+                else {
+                    o[1]->setFullBlock(i, (int)(hMap[i][j] * 16), j, 2, MAX_LEVEL);
+                    o[1]->setFullBlock(i, (int)(hMap[i][j] * 16) + 1, j, 2, MAX_LEVEL);
+
+                    o[1]->setFullBlock(i, (int)(hMap[i][j + 1] * 16), j + 1, 2, MAX_LEVEL);
+                    o[1]->setFullBlock(i, (int)(hMap[i][j + 1] * 16) + 1, j + 1, 2, MAX_LEVEL);
+
+                    o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j] * 16), j, 2, MAX_LEVEL);
+                    o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j] * 16) + 1, j, 2, MAX_LEVEL);
+
+                    o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j + 1] * 16), j + 1, 2, MAX_LEVEL);
+                    o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j + 1] * 16) + 1, j + 1, 2, MAX_LEVEL);
+                }
+                o[1]->setFullBlock(i, (int)(hMap[i][j] * 16) + 2, j, 1, MAX_LEVEL);
+                o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j] * 16) + 2, j, 1, MAX_LEVEL);
+                o[1]->setFullBlock(i, (int)(hMap[i][j + 1] * 16) + 2, j + 1, 1, MAX_LEVEL);
+                o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j + 1] * 16) + 2, j + 1, 1, MAX_LEVEL);
+            }
+        }
+
+        CHANGE change = changes[this->x][this->y];
+        for (int i = 0; i < (int)change.action.size(); ++i) {
+            vec6 action = change.action[i];
+            if (action.mode == 0) {
+                // usuwanie
+                o[action.octree]->remove(action.x, action.y, action.z);
             }
             else {
-                cho[1]->setFullBlock(i, (int)(hMap[i][j] * 16), j, 2, MAX_LEVEL);
-                cho[1]->setFullBlock(i, (int)(hMap[i][j] * 16) + 1, j, 2, MAX_LEVEL);
-
-                cho[1]->setFullBlock(i, (int)(hMap[i][j + 1] * 16), j + 1, 2, MAX_LEVEL);
-                cho[1]->setFullBlock(i, (int)(hMap[i][j + 1] * 16) + 1, j + 1, 2, MAX_LEVEL);
-
-                cho[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j] * 16), j, 2, MAX_LEVEL);
-                cho[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j] * 16) + 1, j, 2, MAX_LEVEL);
-
-                cho[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j + 1] * 16), j + 1, 2, MAX_LEVEL);
-                cho[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j + 1] * 16) + 1, j + 1, 2, MAX_LEVEL);
+                // dodawanie
+                if (o[action.octree] == NULL) {
+                    o[action.octree] = new Octree(this->data, this->data_size, this->x, this->y, action.octree);
+                }
+                o[action.octree]->add(action.x, action.y, action.z, action.type);
             }
-            cho[1]->setFullBlock(i, (int)(hMap[i][j] * 16) + 2, j, 1, MAX_LEVEL);
-            cho[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j] * 16) + 2, j, 1, MAX_LEVEL);
-            cho[1]->setFullBlock(i, (int)(hMap[i][j + 1] * 16) + 2, j + 1, 1, MAX_LEVEL);
-            cho[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j + 1] * 16) + 2, j + 1, 1, MAX_LEVEL);
         }
+
+        delete[] minMap;
+
+        update();
     }
-    
-    delete[] minMap;
 
-    update_chunk(ch);
-}
-
-void update_chunk(CHUNK* ch) {
-    glBindVertexArray(ch->VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, ch->instanceVBO);
-    
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*(ch->data_size)), ch->data);
-    //cout << ch->size << " \n";
-}
-
-
-void delete_chunk(CHUNK* ch) {
-    if (ch->set) {
-        for (int i = 0; i < 8; ++i) {
-            if (ch->o[i] != NULL) {
-                //printf("delete CHUNK data\n");
-                ch->o[i]->deleteAll(); 
-                delete ch->o[i];
+    void clear() {
+        if (set) {
+            for (int i = 0; i < 8; ++i) {
+                if (o[i] != NULL) {
+                    o[i]->deleteAll();
+                    delete this->o[i];
+                }
             }
         }
     }
-}
+
+    void update() {
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*data_size), data);
+    }
+};
+
 
 float*** getMinMap(float** hMap) {
     // allocate

@@ -116,12 +116,14 @@ public:
 
     }
 
-    void remove(int x, int y, int z) {
+    int remove(int x, int y, int z) {
+        int last_type = -1;
         vector <OctreeNode*> blocks = getBlocks(x, y, z);
         if (!blocks.back()->isFull()) {
             printf("WARNING (remove): block does not exist (%d, %d, %d)\n", x, y, z);
-            return;
+            return -1;
         }
+        last_type = blocks.back()->type;
 
         // update existed
         for (int lvl = 0; lvl < (int)blocks.size(); ++lvl) {
@@ -154,6 +156,7 @@ public:
             blocks[lvl]->type = 0;
         }
 
+        return last_type;
     }
 
     OctreeNode* getBlock(int x, int y, int z) {
