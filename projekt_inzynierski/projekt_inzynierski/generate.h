@@ -11,7 +11,7 @@ public:
     unsigned int VAO;
     unsigned int instanceVBO;
     float* data;
-    int size;
+    int* data_size;
     int x, y;
     bool set;
 };
@@ -109,6 +109,7 @@ void constructor_chunk(CHUNK* ch) {
     int max_size = 10000;// 5 * 16 * 16 * 16 * 8 * 0.5;
     ch->data = new float[max_size];
     ch->set = false;
+    ch->data_size = new int;
 
     // instanceVBO
 
@@ -240,7 +241,7 @@ void update_chunk(CHUNK* ch) {
     int y = ch->y;
     int sum = 0;
     int it = 0;
-    ch->size = 0;
+    *(ch->data_size) = 0;
 
     for (int i = 0; i < 8; ++i) {
         if (cho[i] != NULL) {
@@ -258,13 +259,12 @@ void update_chunk(CHUNK* ch) {
                         it++;
                         ch->data[it] = cho[i]->fullBlocks[lvl][tt][j]->type;
                         it++;
-                        ch->size++;
+                        *(ch->data_size) = *(ch->data_size) + 1;
                     }
                 }
             }
         }
     }
-    
     glBindVertexArray(ch->VAO);
     glBindBuffer(GL_ARRAY_BUFFER, ch->instanceVBO);
 
@@ -384,7 +384,7 @@ void setVAO(int x, int y) {
     }
 
     ch->data = &vect[0];
-    ch->size = sum;
+    *(ch->data_size) = sum;
 
     unsigned int instanceVBO;
     glGenBuffers(1, &instanceVBO);
