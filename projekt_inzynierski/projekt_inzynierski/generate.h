@@ -11,6 +11,8 @@ public:
     unsigned int VAO;
     float* data;
     int size;
+    int x, y;
+    bool set;
 };
 
 // zmienne globalne
