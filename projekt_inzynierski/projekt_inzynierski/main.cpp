@@ -210,7 +210,7 @@ int main() {
         blockShader.use();
 
         // set matrices
-        glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);        
+        glm::mat4 proj = glm::perspective(glm::radians(70.0f), (float)width / (float)height, 0.1f, 100.0f);        
         glm::mat4 view = camera.GetViewMatrix();
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
