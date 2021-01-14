@@ -29,48 +29,48 @@ CHUNK* generate_chunk(int x, int y);
 void setVAO(int x, int y);
 
 float vertices[] = {
-1.0f,   1.0f,   0.0f,   0.0f,   1.0f, 0.0f, // left side
-1.0f,   0.0f,   0.0f,   0.0f,   0.0f, 0.0f,
-0.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f,
+//      position          texture     side
+    1.0f, 1.0f, 0.0f,   0.0f, 1.0f,   0.0f, // left side
+    1.0f, 0.0f, 0.0f,   0.0f, 0.0f,   0.0f,
+    0.0f, 0.0f, 0.0f,   1.0f, 0.0f,   0.0f,
+    0.0f, 0.0f, 0.0f,   1.0f, 0.0f,   0.0f,
+    0.0f, 1.0f, 0.0f,   1.0f, 1.0f,   0.0f,
+    1.0f, 1.0f, 0.0f,   0.0f, 1.0f,   0.0f,
 
-0.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f,
-0.0f,   1.0f,   0.0f,   1.0f,   1.0f, 0.0f,
-1.0f,   1.0f,   0.0f,   0.0f,   1.0f, 0.0f,
+    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   0.0f,// right side
+    1.0f, 0.0f, 1.0f,   1.0f, 0.0f,   0.0f,
+    1.0f, 1.0f, 1.0f,   1.0f, 1.0f,   0.0f,
+    1.0f, 1.0f, 1.0f,   1.0f, 1.0f,   0.0f,
+    0.0f, 1.0f, 1.0f,   0.0f, 1.0f,   0.0f,
+    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   0.0f,
 
-0.0f,   0.0f,   1.0f,   0.0f,   0.0f, 0.0f,// right side
-1.0f,   0.0f,   1.0f,   1.0f,   0.0f, 0.0f,
-1.0f,   1.0f,   1.0f,   1.0f,   1.0f, 0.0f,
-1.0f,   1.0f,   1.0f,   1.0f,   1.0f, 0.0f,
-0.0f,   1.0f,   1.0f,   0.0f,   1.0f, 0.0f,
-0.0f,   0.0f,   1.0f,   0.0f,   0.0f, 0.0f,
+    0.0f, 1.0f, 1.0f,   1.0f, 1.0f,   0.0f, // front
+    0.0f, 1.0f, 0.0f,   0.0f, 1.0f,   0.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, 0.0f,   0.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, 0.0f,   0.0f,
+    0.0f, 0.0f, 1.0f,   1.0f, 0.0f,   0.0f,
+    0.0f, 1.0f, 1.0f,   1.0f, 1.0f,   0.0f,
 
-0.0f,   1.0f,   1.0f,   1.0f,   1.0f, 0.0f, // front
-0.0f,   1.0f,   0.0f,   0.0f,   1.0f, 0.0f,
-0.0f,   0.0f,   0.0f,   0.0f,   0.0f, 0.0f,
-0.0f,   0.0f,   0.0f,   0.0f,   0.0f, 0.0f,
-0.0f,   0.0f,   1.0f,   1.0f,   0.0f, 0.0f,
-0.0f,   1.0f,   1.0f,   1.0f,   1.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   0.0f, // back
+    1.0f, 1.0f, 0.0f,   1.0f, 1.0f,   0.0f,
+    1.0f, 1.0f, 1.0f,   0.0f, 1.0f,   0.0f,
+    1.0f, 1.0f, 1.0f,   0.0f, 1.0f,   0.0f,
+    1.0f, 0.0f, 1.0f,   0.0f, 0.0f,   0.0f,
+    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   0.0f,
 
-1.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f, // back
-1.0f,   1.0f,   0.0f,   1.0f,   1.0f, 0.0f,
-1.0f,   1.0f,   1.0f,   0.0f,   1.0f, 0.0f,
-1.0f,   1.0f,   1.0f,   0.0f,   1.0f, 0.0f,
-1.0f,   0.0f,   1.0f,   0.0f,   0.0f, 0.0f,
-1.0f,   0.0f,   0.0f,   1.0f,   0.0f, 0.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, 0.0f,   1.0f, // down
+    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   1.0f,
+    1.0f, 0.0f, 1.0f,   1.0f, 1.0f,   1.0f,
+    1.0f, 0.0f, 1.0f,   1.0f, 1.0f,   1.0f,
+    0.0f, 0.0f, 1.0f,   0.0f, 1.0f,   1.0f,
+    0.0f, 0.0f, 0.0f,   0.0f, 0.0f,   1.0f,
 
-0.0f,   0.0f,   0.0f,   0.0f,   0.0f, 1.0f, // down
-1.0f,   0.0f,   0.0f,   1.0f,   0.0f, 1.0f,
-1.0f,   0.0f,   1.0f,   1.0f,   1.0f, 1.0f,
-1.0f,   0.0f,   1.0f,   1.0f,   1.0f, 1.0f,
-0.0f,   0.0f,   1.0f,   0.0f,   1.0f, 1.0f,
-0.0f,   0.0f,   0.0f,   0.0f,   0.0f, 1.0f,
-
-1.0f,   1.0f,   1.0f,   1.0f,   0.0f, 2.0f, // up
-1.0f,   1.0f,   0.0f,   1.0f,   1.0f, 2.0f,
-0.0f,   1.0f,   0.0f,   0.0f,   1.0f, 2.0f,
-0.0f,   1.0f,   0.0f,   0.0f,   1.0f, 2.0f,
-0.0f,   1.0f,   1.0f,   0.0f,   0.0f, 2.0f,
-1.0f,   1.0f,   1.0f,   1.0f,   0.0f, 2.0f,
+    1.0f, 1.0f, 1.0f,   1.0f, 0.0f,   2.0f, // up
+    1.0f, 1.0f, 0.0f,   1.0f, 1.0f,   2.0f,
+    0.0f, 1.0f, 0.0f,   0.0f, 1.0f,   2.0f,
+    0.0f, 1.0f, 0.0f,   0.0f, 1.0f,   2.0f,
+    0.0f, 1.0f, 1.0f,   0.0f, 0.0f,   2.0f,
+    1.0f, 1.0f, 1.0f,   1.0f, 0.0f,   2.0f,
 };
 
 float target_vertices[] = {
@@ -210,8 +210,6 @@ void setVAO(int x, int y) {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBindVertexArray(VAO);
 
-
-
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // position attribute
@@ -227,8 +225,10 @@ void setVAO(int x, int y) {
     glEnableVertexAttribArray(2);
 
     // 
-    glEnableVertexAttribArray(3);
     glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+
+    glEnableVertexAttribArray(3);
+    
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glVertexAttribDivisor(3, 1);
 
@@ -238,7 +238,6 @@ void setVAO(int x, int y) {
 
     glEnableVertexAttribArray(5);
     glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(4 * sizeof(float)));
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glVertexAttribDivisor(5, 1);
 
     glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
