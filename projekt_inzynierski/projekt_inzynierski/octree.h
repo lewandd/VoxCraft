@@ -5,7 +5,7 @@
 class Octree {
 
 public:
-    OctreeNode* root = new OctreeNode(0, 0, 0, 0, 0);
+    Block* root = new Block(0, 0, 0, 0, 0);
     float* data;
     int* data_size;
     int x, y, o;
@@ -43,8 +43,8 @@ public:
             return;
         }
 
-        OctreeNode* target = root;
-        OctreeNode* tmp = root;
+        Block* target = root;
+        Block* tmp = root;
         int level = 0;
         int ind;
 
@@ -85,8 +85,8 @@ public:
             return;
         }
 
-        OctreeNode* target = root;
-        OctreeNode* tmp = root;
+        Block* target = root;
+        Block* tmp = root;
         int level = 0;
         int ind;
 
@@ -118,7 +118,7 @@ public:
 
     int remove(int x, int y, int z) {
         int last_type = -1;
-        vector <OctreeNode*> blocks = getBlocks(x, y, z);
+        vector <Block*> blocks = getBlocks(x, y, z);
         if (!blocks.back()->isFull()) {
             printf("WARNING (remove): block does not exist (%d, %d, %d)\n", x, y, z);
             return -1;
@@ -159,9 +159,9 @@ public:
         return last_type;
     }
 
-    OctreeNode* getBlock(int x, int y, int z) {
-        OctreeNode* target = root;
-        OctreeNode* tmp = root;
+    Block* getBlock(int x, int y, int z) {
+        Block* target = root;
+        Block* tmp = root;
         int level = 0;
         int ind;
         unsigned int offset = 1 << (MAX_LEVEL - 1);
@@ -177,7 +177,7 @@ public:
         return target;
     }
 
-    void show(OctreeNode* n) {
+    void show(Block* n) {
         if (n != NULL) {
             n->show();
 
@@ -186,7 +186,7 @@ public:
         }
     }
 
-    void show(vector<OctreeNode*> v) {
+    void show(vector<Block*> v) {
         for (int i = 0; i < (int)v.size(); i++)
             show(v[i]);
     }
@@ -201,7 +201,7 @@ public:
         deleteRec(root);     
     }
 
-    void deleteRec(OctreeNode* tmp) {
+    void deleteRec(Block* tmp) {
         if (tmp != NULL) {
             for (int i = 0; i < 8; ++i) {
                 deleteRec(tmp->ch[i]);
@@ -211,7 +211,7 @@ public:
     }
 
 private:
-    void addToFullBlocks(OctreeNode* n) {
+    void addToFullBlocks(Block* n) {
         
         n->ind = *data_size;
 
@@ -223,7 +223,7 @@ private:
         *data_size = *data_size + 5;
     }
 
-    void deleteFromFullBlocks(OctreeNode* n) {
+    void deleteFromFullBlocks(Block* n) {
         data[n->ind] = data[*data_size-5];
         data[n->ind + 1] = data[*data_size - 4];
         data[n->ind + 2] = data[*data_size - 3];
@@ -235,12 +235,12 @@ private:
     }
 
     void merge(int x, int y, int z) {
-        OctreeNode* target = root;
-        OctreeNode* tmp = root;
+        Block* target = root;
+        Block* tmp = root;
         int level = target->level;
         int offset = 1 << (MAX_LEVEL - 1);
 
-        vector <OctreeNode*> blocksList = getBlocks(x, y, z);
+        vector <Block*> blocksList = getBlocks(x, y, z);
         for (int i = blocksList.size() - 1; i >= 0; --i) {
             if (blocksList[i]->mergeUpdateType()) {
                 addToFullBlocks(blocksList[i]);
@@ -256,10 +256,10 @@ private:
         }
     }
 
-    vector <OctreeNode*> getBlocks(int x, int y, int z) {
-        vector <OctreeNode*> blocksList;
-        OctreeNode* target = root;
-        OctreeNode* tmp = root;
+    vector <Block*> getBlocks(int x, int y, int z) {
+        vector <Block*> blocksList;
+        Block* target = root;
+        Block* tmp = root;
         int level = 0;
         int ind;
         unsigned int offset = 1 << (MAX_LEVEL - 1);

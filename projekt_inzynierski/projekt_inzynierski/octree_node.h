@@ -21,10 +21,10 @@ struct TRI_ARGS {
     }
 };
 
-class OctreeNode {
+class Block {
 public:
 
-    OctreeNode* ch[8];
+    Block* ch[8];
     int x, y, z;
     int type;
     int level;
@@ -32,7 +32,7 @@ public:
     int max_size;
     int ind;
 
-    OctreeNode(int level, int type, int x, int y, int z) {
+    Block(int level, int type, int x, int y, int z) {
         for (int i = 0; i < 8; ++i)
             ch[i] = NULL;
         this->x = (x >> (MAX_LEVEL - level)) << (MAX_LEVEL - level);
@@ -98,9 +98,9 @@ public:
         this->type = _type;
     }
 
-    OctreeNode* setChild(int ind) {
+    Block* setChild(int ind) {
         vector <int> pos = getChildPosition(ind);
-        ch[ind] = new OctreeNode(level + 1, 0, pos[0], pos[1], pos[2]);
+        ch[ind] = new Block(level + 1, 0, pos[0], pos[1], pos[2]);
         return ch[ind];
     }
 
@@ -136,11 +136,11 @@ public:
         printf(" %3d  |\n", type);
     }
 
-    OctreeNode* getChild(int x, int y, int z) {
+    Block* getChild(int x, int y, int z) {
         return ch[getChildInd(x, y, z)];
     }
 
-    OctreeNode* getChild(int ind) {
+    Block* getChild(int ind) {
         return ch[ind];
     }
 
