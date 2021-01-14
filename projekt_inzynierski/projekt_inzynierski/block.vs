@@ -9,6 +9,7 @@ layout (location = 5) in float type;
 out vec2 TexCoord;
 out float Side;
 out float atype;
+out float distance;
 
 uniform mat4 view;
 uniform mat4 projection;
@@ -19,4 +20,5 @@ void main()
     TexCoord = aTexCoord*scale;
     Side = aSide;
     atype = type;
+    distance = gl_Position.z;
 }
