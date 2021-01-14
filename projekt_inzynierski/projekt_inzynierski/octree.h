@@ -213,6 +213,26 @@ public:
         show(root);
     }
 
+    void deleteAll() {
+        deleteRec(root);
+
+        for (int i = 0; i < MAX_LEVEL + 1; ++i) {
+            for (int j = 0; j < 5; ++j) {
+                fullBlocks[i][j].clear();
+            }
+        }
+        
+    }
+
+    void deleteRec(OctreeNode* tmp) {
+        if (tmp != NULL) {
+            for (int i = 0; i < 8; ++i) {
+                deleteRec(tmp->ch[i]);
+            }
+            delete tmp;
+        }
+    }
+
 private:
     void addToFullBlocks(OctreeNode* n) {
         fullBlocks[n->getLevel()][n->getType()-1].push_back(n);
