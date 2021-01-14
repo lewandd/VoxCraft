@@ -164,6 +164,18 @@ CHUNK* generate_chunk(int x, int y) {
     return ch;
 }
 
+void delete_chunk(CHUNK* ch) {
+    if (ch->set) {
+        for (int i = 0; i < 8; ++i) {
+            if (ch->o[i] != NULL) {
+                printf("delete CHUNK data\n");
+                ch->o[i]->deleteAll(); 
+                delete ch->o[i];
+            }
+        }
+    }
+}
+
 void setVAO(int x, int y) {
     CHUNK* ch = chunk[x][y];
     Octree** cho = ch->o;
