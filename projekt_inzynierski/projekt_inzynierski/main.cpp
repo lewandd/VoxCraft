@@ -413,22 +413,25 @@ void updateVisibleChunks() {
     for (int i = -renderChunkDistance; i <= renderChunkDistance; ++i) {
         for (int j = -renderChunkDistance; j <= renderChunkDistance; ++j) {
 
-            // is pos available
-            if ((chunk_x + i) >= 0 && (chunk_x + i) < CHUNKS_COUNT && (chunk_y + j) >= 0 && (chunk_y + j) < CHUNKS_COUNT) {
-                float cdx = camera.Position.x - ((chunk_x + i) * 16.0 + 8.0);
-                float cdy = camera.Position.z - ((chunk_y + j) * 16.0 + 8.0);
+            // is free space
+            if (nearChunks[i + renderChunkDistance][j + renderChunkDistance] == NULL) {
+                // is pos available
+                if ((chunk_x + i) >= 0 && (chunk_x + i) < CHUNKS_COUNT && (chunk_y + j) >= 0 && (chunk_y + j) < CHUNKS_COUNT) {
+                    float cdx = camera.Position.x - ((chunk_x + i) * 16.0 + 8.0);
+                    float cdy = camera.Position.z - ((chunk_y + j) * 16.0 + 8.0);
 
-                // near (should be added)
-                if (cdx * cdx + cdy * cdy < 12000.0) {
+                    // near (should be added)
+                    if (cdx * cdx + cdy * cdy < 12000.0) {
 
-                    if (!unvisibleChunks.empty()) {
-                        // update some unvisible CHUNK and add to visible
+                        if (!unvisibleChunks.empty()) {
+                            // update some unvisible CHUNK and add to visible
 
-                        unvisibleChunks[0]->setNew(chunk_x + i, chunk_y + j);
+                            unvisibleChunks[0]->setNew(chunk_x + i, chunk_y + j);
 
-                        visibleChunks.push_back(unvisibleChunks[0]);
-                        nearChunks[i + renderChunkDistance][j + renderChunkDistance] = unvisibleChunks[0];
-                        unvisibleChunks.erase(unvisibleChunks.begin());
+                            visibleChunks.push_back(unvisibleChunks[0]);
+                            nearChunks[i + renderChunkDistance][j + renderChunkDistance] = unvisibleChunks[0];
+                            unvisibleChunks.erase(unvisibleChunks.begin());
+                        }
                     }
                 }
             }
