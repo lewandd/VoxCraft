@@ -5,7 +5,7 @@
 
 // struktury
 
-struct vec6 {
+struct ACTION {
     int mode;
     int octree;
     int x;
@@ -13,18 +13,18 @@ struct vec6 {
     int z;
     int type;
 
-    vec6(int z1, int z2, int z3, int z4, int z5, int z6) {
-        mode = z1;
-        octree = z2;
-        x = z3;
-        y = z4;
-        z = z5;
-        type = z6;
+    ACTION(int mode_, int octree_, int x_, int y_, int z_, int type_) {
+        mode = mode_;
+        octree = octree_;
+        x = x_;
+        y = y_;
+        z = z_;
+        type = type_;
     }
 };
 
 struct CHANGE {
-    vector<vec6> action;
+    vector<ACTION> action;
 };
 
 CHANGE changes[CHUNKS_COUNT][CHUNKS_COUNT];
@@ -257,9 +257,9 @@ public:
             }
         }
 
-        CHANGE change = changes[this->x][this->y];
+        CHANGE change = changes[x][y];
         for (int i = 0; i < (int)change.action.size(); ++i) {
-            vec6 action = change.action[i];
+            ACTION action = change.action[i];
             if (action.mode == 0) {
                 // usuwanie
                 o[action.octree]->remove(action.x, action.y, action.z);
@@ -324,8 +324,8 @@ void recSetMinMap(float*** minMap, int x, int y, int lvl) {
         recSetMinMap(minMap, x * 2 + 1, y * 2, lvl - 1);
         recSetMinMap(minMap, x * 2 + 1, y * 2 + 1, lvl - 1);
         minMap[lvl][x][y] = min(min(minMap[lvl - 1][x * 2][y * 2],
-            minMap[lvl - 1][x * 2][y * 2 + 1]),
-            min(minMap[lvl - 1][x * 2 + 1][y * 2],
-                minMap[lvl - 1][x * 2 + 1][y * 2 + 1]));
+                                minMap[lvl - 1][x * 2][y * 2 + 1]),
+                                min(minMap[lvl - 1][x * 2 + 1][y * 2],
+                                minMap[lvl - 1][x * 2 + 1][y * 2 + 1]));
     }
 }
