@@ -49,6 +49,7 @@ int selected_x = -1;
 int selected_y = -1;
 int selected_z = -1;
 bool selected = false;
+int selectedStart = 0;
 
 int side = 0;
 int choosedType = 0;
@@ -359,12 +360,18 @@ int main() {
         // ----------------
 
         interfaceShader.use();
+        if (choosedType > selectedStart + 7) {
+            selectedStart++;
+        }
+        else if (choosedType < selectedStart) {
+            selectedStart--;
+        }
 
-        for (int i = 0; i < min(10, NUM_BLOCK_TEXTURES); ++i) {
-            glUniform3f(interfaceTranslateLoc, -0.55 + (float)i*0.11, -0.99, -1.0);
-            glUniform1i(interfaceLayerLoc, 3*i);
+        for (int i = 0; i < min(8, NUM_BLOCK_TEXTURES); ++i) {
+            glUniform3f(interfaceTranslateLoc, -0.45 + (float)i*0.11, -0.99, -1.0);
+            glUniform1i(interfaceLayerLoc, 3*(i + selectedStart));
 
-            if (choosedType == i)
+            if (choosedType == i + selectedStart)
                 glUniform1f(interfaceSelectedLoc, 1.0f);
             else 
                 glUniform1f(interfaceSelectedLoc, 0.4f);
