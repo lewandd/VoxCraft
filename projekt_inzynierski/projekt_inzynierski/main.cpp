@@ -304,32 +304,30 @@ int main() {
 
         if (selected) {
             selectShader.use();
-            //cout << "side " << side << endl;
             glm::mat4 trans = glm::mat4(1.0f);
             trans = glm::translate(trans, glm::vec3(16*selected_chunk_x + selected_x, 16 * selected_octree + selected_y, 16 * selected_chunk_y + selected_z));
-            //trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
 
             switch (side) {
-                case 1: // prawo
+                case 1: // right
                     trans = glm::translate(trans, glm::vec3(-0.01f, 0.0f, 1.0f));
                     trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
                     break;
-                case 2: // lewo
+                case 2: // left
                     trans = glm::translate(trans, glm::vec3(1.01f, 0.0f, 0.0f));
                     trans = glm::rotate(trans, glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0));
                     break;
-                case 3: // dol
+                case 3: // bottom
                     trans = glm::translate(trans, glm::vec3(0.0f, -0.01f, 1.0f));
                     trans = glm::rotate(trans, glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
                     break;
-                case 4: // gora
+                case 4: // up
                     trans = glm::translate(trans, glm::vec3(0.0f, 1.01f, 0.0f));
                     trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
                     break;
-                case 5: // przod
+                case 5: // front
                     trans = glm::translate(trans, glm::vec3(0.0f, 0.0f, -0.01f));
                     break;
-                case 6: // tyl
+                case 6: // back
                     trans = glm::translate(trans, glm::vec3(1.0f, 0.0f, 1.01f));
                     trans = glm::rotate(trans, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
                     
