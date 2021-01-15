@@ -571,8 +571,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
                         }
                     }
 
-                    if (ch->o[final_selected_octree] == NULL)
+                    if (ch->o[final_selected_octree] == NULL) {
                         ch->o[final_selected_octree] = new Octree(ch->data, ch->data_size, ch->x, ch->y, final_selected_octree);
+                        ch->o[final_selected_octree]->chunk = ch;
+                    }
 
                     if (ch != NULL) {
                         ch->o[final_selected_octree]->add(final_selected_x, final_selected_y, final_selected_z, choosedType + 1);

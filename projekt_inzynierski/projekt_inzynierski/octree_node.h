@@ -30,7 +30,7 @@ public:
     int level;
     int size;
     int max_size;
-    int ind;
+    int ind = -1;
 
     Block(int level, int type, int x, int y, int z) {
         for (int i = 0; i < 8; ++i)

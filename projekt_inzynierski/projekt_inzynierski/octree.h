@@ -2,10 +2,14 @@
 #include "octree_node.h"
 #include <vector>
 
+class CHUNK;
+void remData(float*, int*, CHUNK*, Block*);
+
 class Octree {
 
 public:
     Block* root = new Block(0, 0, 0, 0, 0);
+    CHUNK* chunk;
     float* data;
     int* data_size;
     int x, y, o;
@@ -220,18 +224,11 @@ private:
         data[*data_size+2] = n->z + 16*y;
         data[*data_size+3] = 1 << (MAX_LEVEL - n->level);
         data[*data_size+4] = n->type;
-        *data_size = *data_size + 5;
+        *data_size = *data_size + 5;   
     }
 
     void deleteFromFullBlocks(Block* n) {
-        data[n->ind] = data[*data_size-5];
-        data[n->ind + 1] = data[*data_size - 4];
-        data[n->ind + 2] = data[*data_size - 3];
-        data[n->ind + 3] = data[*data_size - 2];
-        data[n->ind + 4] = data[*data_size - 1];
-        
-        *data_size = *data_size - 5;
-        n->ind = -1;
+        remData(data, data_size, chunk, n);
     }
 
     void merge(int x, int y, int z) {
@@ -243,7 +240,6 @@ private:
         vector <Block*> blocksList = getBlocks(x, y, z);
         for (int i = blocksList.size() - 1; i >= 0; --i) {
             if (blocksList[i]->mergeUpdateType()) {
-                addToFullBlocks(blocksList[i]);
 
                 for (int j = 0; j < MAX_CHILD; ++j) {
                     if (blocksList[i]->getChild(j) != NULL) {
@@ -252,6 +248,7 @@ private:
                         blocksList[i]->deleteChild(j);
                     }
                 }
+                addToFullBlocks(blocksList[i]);
             }
         }
     }

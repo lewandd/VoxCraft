@@ -38,7 +38,6 @@ unsigned int texture;
 void recSetMinMap(float*** minMap, int x, int y, int lvl);
 float*** getMinMap(float** hMap);
 
-
 float vertices[] = {
 //      position          texture     side
     1.0f, 1.0f, 0.0f,   0.0f, 1.0f,   0.0f, // left side
@@ -195,6 +194,7 @@ public:
             o[i] = NULL;
 
         o[0] = new Octree(data, data_size, x, y, 0);
+        o[0]->chunk = this;
         o[0]->setFullBlock(0, 0, 0, 3, MAX_LEVEL - 4);
 
         // stone top layer
@@ -229,6 +229,7 @@ public:
         }
         float*** minMap = getMinMap(hMap);
         o[1] = new Octree(data, data_size, x, y, 1);
+        o[1]->chunk = this;
         o[1]->addMinMap(minMap, 4, 0, 0, 0, 3, 0);
 
         // dirt top layer
@@ -297,6 +298,26 @@ public:
     }
 };
 
+void remData(float* data, int* data_size, CHUNK* ch, Block* b) {
+
+    data[b->ind] = data[*data_size - 5];
+    data[b->ind + 1] = data[*data_size - 4];
+    data[b->ind + 2] = data[*data_size - 3];
+    data[b->ind + 3] = data[*data_size - 2];
+    data[b->ind + 4] = data[*data_size - 1];
+
+    int octreeID = (int)data[*data_size - 4] / 16;
+    Octree *o = ch->o[octreeID];
+    int block_x = (int)data[*data_size - 5] % 16;
+    int block_y = (int)data[*data_size - 4] % 16;
+    int block_z = (int)data[*data_size - 3] % 16;
+
+    Block* n = o->getBlock(block_x, block_y, block_z);
+    n->ind = b->ind;
+
+    *data_size = *data_size - 5;
+    b->ind = -1;
+}
 
 float*** getMinMap(float** hMap) {
     // allocate
