@@ -203,8 +203,18 @@ public:
         int noise_y = (y * CHUNK_SIZE) / NOISE_MAP_SIZE;
         if (noise[noise_x][noise_y] == NULL) {
             Perlin p(NOISE_MAP_SIZE, FREQ1, 1);
+            Perlin p2(NOISE_MAP_SIZE, FREQ1/2, 1);
             p.setSeed(noise_x, noise_y);
-            noise[noise_x][noise_y] = p.getAll();
+            p2.setSeed(noise_x, noise_y);
+            float** p1Noise = p.getAll();
+            float** p2Noise = p2.getAll();
+            for (int i = 0; i < NOISE_MAP_SIZE; ++i) {
+                for (int j = 0; j < NOISE_MAP_SIZE; ++j) {
+                    p2Noise[i][j] = (p1Noise[i][j] + p2Noise[i][j]) / 2.0;
+                }
+            }
+            noise[noise_x][noise_y] = p2Noise;
+            //noise[noise_x][noise_y] = p.getAll();
         }
 
         float** hMap;
