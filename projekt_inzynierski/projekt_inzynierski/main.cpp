@@ -329,10 +329,10 @@ int main() {
             CHUNK* ch = visibleChunks[i];
 
             glBindVertexArray(ch->VAO);
-            glDrawArraysInstanced(GL_TRIANGLES, 0, 36, *(ch->data_size)/5);
+            glDrawArraysInstanced(GL_TRIANGLES, 0, 36, ch->data_size/5);
 
             sum_chunks++;
-            sum += *(ch->data_size);
+            sum += ch->data_size;
         }
         //cout << sum << " " << sum_chunks << endl;
         

@@ -114,7 +114,7 @@ public:
     unsigned int VAO;
     unsigned int instanceVBO;
     float* data;
-    int* data_size;
+    int data_size;
     int x, y;
     bool set;
 
@@ -122,8 +122,7 @@ public:
         int max_size = 10000;// 5 * 16 * 16 * 16 * 8 * 0.5;
         this->data = new float[max_size];
         this->set = false;
-        this->data_size = new int;
-        *(this->data_size) = 0;
+        data_size = 0;
 
         // instanceVBO
 
@@ -185,7 +184,7 @@ public:
         this->x = x_;
         this->y = y_;
 
-        *(data_size) = 0;
+        data_size = 0;
 
         set = true;
 
@@ -292,39 +291,39 @@ public:
         glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
 
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * (*data_size), data);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * data_size, data);
     }
 };
 
 void addData(CHUNK* ch, Octree* oc, Block* b) {
-    b->ind = *(ch->data_size);
+    b->ind = ch->data_size;
 
-    ch->data[*(ch->data_size)] = b->x + 16 * oc->x;
-    ch->data[*(ch->data_size) + 1] = b->y + 16 * oc->o;
-    ch->data[*(ch->data_size) + 2] = b->z + 16 * oc->y;
-    ch->data[*(ch->data_size) + 3] = 1 << (MAX_LEVEL - b->level);
-    ch->data[*(ch->data_size) + 4] = b->type;
-    *(ch->data_size) = *(ch->data_size) + 5;
+    ch->data[ch->data_size] = b->x + 16 * oc->x;
+    ch->data[ch->data_size + 1] = b->y + 16 * oc->o;
+    ch->data[ch->data_size + 2] = b->z + 16 * oc->y;
+    ch->data[ch->data_size + 3] = 1 << (MAX_LEVEL - b->level);
+    ch->data[ch->data_size + 4] = b->type;
+    ch->data_size = ch->data_size + 5;
 }
 
 void remData(CHUNK* ch, Octree* oc, Block* b) {
 
-    ch->data[b->ind] = ch->data[*(ch->data_size) - 5];
-    ch->data[b->ind + 1] = ch->data[*(ch->data_size) - 4];
-    ch->data[b->ind + 2] = ch->data[*(ch->data_size) - 3];
-    ch->data[b->ind + 3] = ch->data[*(ch->data_size) - 2];
-    ch->data[b->ind + 4] = ch->data[*(ch->data_size) - 1];
+    ch->data[b->ind] = ch->data[ch->data_size - 5];
+    ch->data[b->ind + 1] = ch->data[ch->data_size - 4];
+    ch->data[b->ind + 2] = ch->data[ch->data_size - 3];
+    ch->data[b->ind + 3] = ch->data[ch->data_size - 2];
+    ch->data[b->ind + 4] = ch->data[ch->data_size - 1];
 
-    int octreeID = (int)ch->data[*(ch->data_size) - 4] / 16;
+    int octreeID = (int)ch->data[ch->data_size - 4] / 16;
     Octree *o = ch->o[octreeID];
-    int block_x = (int)ch->data[*(ch->data_size) - 5] % 16;
-    int block_y = (int)ch->data[*(ch->data_size) - 4] % 16;
-    int block_z = (int)ch->data[*(ch->data_size) - 3] % 16;
+    int block_x = (int)ch->data[ch->data_size - 5] % 16;
+    int block_y = (int)ch->data[ch->data_size - 4] % 16;
+    int block_z = (int)ch->data[ch->data_size - 3] % 16;
 
     Block* n = o->getBlock(block_x, block_y, block_z);
     n->ind = b->ind;
 
-    *(ch->data_size) = *(ch->data_size) - 5;
+    ch->data_size = ch->data_size - 5;
     b->ind = -1;
 }
 
