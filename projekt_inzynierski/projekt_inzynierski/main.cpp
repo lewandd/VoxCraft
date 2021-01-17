@@ -226,6 +226,37 @@ int main() {
     int selectViewLoc = glGetUniformLocation(blockShader.ID, "view");
     int selectTransformLoc = glGetUniformLocation(selectShader.ID, "transform");
 
+    int rot0Loc = glGetUniformLocation(blockShader.ID, "rot[0]");
+    int rot1Loc = glGetUniformLocation(blockShader.ID, "rot[1]");
+    int rot2Loc = glGetUniformLocation(blockShader.ID, "rot[2]");
+    int rot3Loc = glGetUniformLocation(blockShader.ID, "rot[3]");
+    int rot4Loc = glGetUniformLocation(blockShader.ID, "rot[4]");
+    int rot5Loc = glGetUniformLocation(blockShader.ID, "rot[5]");
+
+    glm::mat4 rot0 = glm::mat4(1.0f);
+    glm::mat4 rot1 = glm::mat4(1.0f);
+    glm::mat4 rot2 = glm::mat4(1.0f);
+    glm::mat4 rot3 = glm::mat4(1.0f);
+    glm::mat4 rot4 = glm::mat4(1.0f);
+    glm::mat4 rot5 = glm::mat4(1.0f);
+
+    rot0 = glm::translate(rot0, glm::vec3(-0.0f, 0.0f, 1.0f));
+    rot0 = glm::rotate(rot0, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
+
+    rot1 = glm::translate(rot1, glm::vec3(1.0f, 0.0f, 0.0f));
+    rot1 = glm::rotate(rot1, glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0));
+
+    rot2 = glm::translate(rot2, glm::vec3(0.0f, 0.0f, 1.0f));
+    rot2 = glm::rotate(rot2, glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
+
+    rot3 = glm::translate(rot3, glm::vec3(0.0f, 1.0f, 0.0f));
+    rot3 = glm::rotate(rot3, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
+
+    rot4 = glm::translate(rot4, glm::vec3(0.0f, 0.0f, 0.0f));
+
+    rot5 = glm::translate(rot5, glm::vec3(1.0f, 0.0f, 1.0f));
+    rot5 = glm::rotate(rot5, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
+
     // set chunks
     nearChunks = new CHUNK ** [numNearChunks];
     for (int i = 0; i < numNearChunks; ++i) {
@@ -275,6 +306,13 @@ int main() {
         // -------------
 
         blockShader.use();
+
+        glUniformMatrix4fv(rot0Loc, 1, GL_FALSE, glm::value_ptr(rot0));
+        glUniformMatrix4fv(rot1Loc, 1, GL_FALSE, glm::value_ptr(rot1));
+        glUniformMatrix4fv(rot2Loc, 1, GL_FALSE, glm::value_ptr(rot2));
+        glUniformMatrix4fv(rot3Loc, 1, GL_FALSE, glm::value_ptr(rot3));
+        glUniformMatrix4fv(rot4Loc, 1, GL_FALSE, glm::value_ptr(rot4));
+        glUniformMatrix4fv(rot5Loc, 1, GL_FALSE, glm::value_ptr(rot5));
 
         // set matrices
         glm::mat4 proj = glm::perspective(glm::radians(70.0f), (float)width / (float)height, 0.1f, 100.0f);        
