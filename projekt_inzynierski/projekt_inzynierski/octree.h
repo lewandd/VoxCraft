@@ -14,9 +14,7 @@ public:
     CHUNK* chunk;
     int x, y, o;
 
-    Octree(float* data_, int* data_size_, int x_, int y_, int o_) {
-        //this->data = data_;
-        //this->data_size = data_size_;
+    Octree(int x_, int y_, int o_) {
         this->x = x_;
         this->y = y_;
         this->o = o_;
