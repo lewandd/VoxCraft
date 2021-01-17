@@ -193,8 +193,7 @@ public:
         for (int i = 0; i < 8; ++i)
             o[i] = NULL;
 
-        o[0] = new Octree(x, y, 0);
-        o[0]->chunk = this;
+        o[0] = new Octree(this, x, y, 0);
         o[0]->setFullBlock(0, 0, 0, 3, MAX_LEVEL - 4);
 
         // stone top layer
@@ -228,8 +227,7 @@ public:
             }
         }
         float*** minMap = getMinMap(hMap);
-        o[1] = new Octree(x, y, 1);
-        o[1]->chunk = this;
+        o[1] = new Octree(this, x, y, 1);
         o[1]->addMinMap(minMap, 4, 0, 0, 0, 3, 0);
 
         // dirt top layer
@@ -268,7 +266,7 @@ public:
             else {
                 // dodawanie
                 if (o[action.octree] == NULL) {
-                    o[action.octree] = new Octree(this->x, this->y, action.octree);
+                    o[action.octree] = new Octree(this, this->x, this->y, action.octree);
                 }
                 o[action.octree]->add(action.x, action.y, action.z, action.type);
             }

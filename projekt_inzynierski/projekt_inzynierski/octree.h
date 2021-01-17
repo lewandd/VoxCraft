@@ -14,10 +14,11 @@ public:
     CHUNK* chunk;
     int x, y, o;
 
-    Octree(int x_, int y_, int o_) {
+    Octree(CHUNK *chunk_, int x_, int y_, int o_) {
         this->x = x_;
         this->y = y_;
         this->o = o_;
+        this->chunk = chunk_;
     }
 
     void addMinMap(float ***minMap, int lvl, int x, int y, int z, int type, int z0) {
