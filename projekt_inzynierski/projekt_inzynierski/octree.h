@@ -5,6 +5,7 @@
 class Octree;
 class CHUNK;
 void remData(float*, int*, CHUNK*, Octree*, Block*);
+void addData(float*, int*, CHUNK*, Octree*, Block*);
 
 class Octree {
 
@@ -217,15 +218,7 @@ public:
 
 private:
     void addToFullBlocks(Block* n) {
-        
-        n->ind = *data_size;
-
-        data[*data_size] = n->x + 16*x;
-        data[*data_size+1] = n->y + 16*o;
-        data[*data_size+2] = n->z + 16*y;
-        data[*data_size+3] = 1 << (MAX_LEVEL - n->level);
-        data[*data_size+4] = n->type;
-        *data_size = *data_size + 5;   
+        addData(data, data_size, chunk, this, n); 
     }
 
     void deleteFromFullBlocks(Block* n) {

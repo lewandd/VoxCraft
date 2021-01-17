@@ -298,6 +298,17 @@ public:
     }
 };
 
+void addData(float* data, int* data_size, CHUNK* ch, Octree* oc, Block* b) {
+    b->ind = *data_size;
+
+    data[*data_size] = b->x + 16 * oc->x;
+    data[*data_size + 1] = b->y + 16 * oc->o;
+    data[*data_size + 2] = b->z + 16 * oc->y;
+    data[*data_size + 3] = 1 << (MAX_LEVEL - b->level);
+    data[*data_size + 4] = b->type;
+    *data_size = *data_size + 5;
+}
+
 void remData(float* data, int* data_size, CHUNK* ch, Octree* oc, Block* b) {
 
     data[b->ind] = data[*data_size - 5];
