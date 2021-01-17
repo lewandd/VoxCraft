@@ -4,21 +4,19 @@
 
 class Octree;
 class CHUNK;
-void remData(float*, int*, CHUNK*, Octree*, Block*);
-void addData(float*, int*, CHUNK*, Octree*, Block*);
+void remData(CHUNK*, Octree*, Block*);
+void addData(CHUNK*, Octree*, Block*);
 
 class Octree {
 
 public:
     Block* root = new Block(0, 0, 0, 0, 0);
     CHUNK* chunk;
-    float* data;
-    int* data_size;
     int x, y, o;
 
     Octree(float* data_, int* data_size_, int x_, int y_, int o_) {
-        this->data = data_;
-        this->data_size = data_size_;
+        //this->data = data_;
+        //this->data_size = data_size_;
         this->x = x_;
         this->y = y_;
         this->o = o_;
@@ -218,11 +216,11 @@ public:
 
 private:
     void addToFullBlocks(Block* n) {
-        addData(data, data_size, chunk, this, n); 
+        addData(chunk, this, n); 
     }
 
     void deleteFromFullBlocks(Block* n) {
-        remData(data, data_size, chunk, this, n);
+        remData(chunk, this, n);
     }
 
     void merge(int x, int y, int z) {

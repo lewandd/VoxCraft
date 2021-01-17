@@ -298,35 +298,35 @@ public:
     }
 };
 
-void addData(float* data, int* data_size, CHUNK* ch, Octree* oc, Block* b) {
-    b->ind = *data_size;
+void addData(CHUNK* ch, Octree* oc, Block* b) {
+    b->ind = *(ch->data_size);
 
-    data[*data_size] = b->x + 16 * oc->x;
-    data[*data_size + 1] = b->y + 16 * oc->o;
-    data[*data_size + 2] = b->z + 16 * oc->y;
-    data[*data_size + 3] = 1 << (MAX_LEVEL - b->level);
-    data[*data_size + 4] = b->type;
-    *data_size = *data_size + 5;
+    ch->data[*(ch->data_size)] = b->x + 16 * oc->x;
+    ch->data[*(ch->data_size) + 1] = b->y + 16 * oc->o;
+    ch->data[*(ch->data_size) + 2] = b->z + 16 * oc->y;
+    ch->data[*(ch->data_size) + 3] = 1 << (MAX_LEVEL - b->level);
+    ch->data[*(ch->data_size) + 4] = b->type;
+    *(ch->data_size) = *(ch->data_size) + 5;
 }
 
-void remData(float* data, int* data_size, CHUNK* ch, Octree* oc, Block* b) {
+void remData(CHUNK* ch, Octree* oc, Block* b) {
 
-    data[b->ind] = data[*data_size - 5];
-    data[b->ind + 1] = data[*data_size - 4];
-    data[b->ind + 2] = data[*data_size - 3];
-    data[b->ind + 3] = data[*data_size - 2];
-    data[b->ind + 4] = data[*data_size - 1];
+    ch->data[b->ind] = ch->data[*(ch->data_size) - 5];
+    ch->data[b->ind + 1] = ch->data[*(ch->data_size) - 4];
+    ch->data[b->ind + 2] = ch->data[*(ch->data_size) - 3];
+    ch->data[b->ind + 3] = ch->data[*(ch->data_size) - 2];
+    ch->data[b->ind + 4] = ch->data[*(ch->data_size) - 1];
 
-    int octreeID = (int)data[*data_size - 4] / 16;
+    int octreeID = (int)ch->data[*(ch->data_size) - 4] / 16;
     Octree *o = ch->o[octreeID];
-    int block_x = (int)data[*data_size - 5] % 16;
-    int block_y = (int)data[*data_size - 4] % 16;
-    int block_z = (int)data[*data_size - 3] % 16;
+    int block_x = (int)ch->data[*(ch->data_size) - 5] % 16;
+    int block_y = (int)ch->data[*(ch->data_size) - 4] % 16;
+    int block_z = (int)ch->data[*(ch->data_size) - 3] % 16;
 
     Block* n = o->getBlock(block_x, block_y, block_z);
     n->ind = b->ind;
 
-    *data_size = *data_size - 5;
+    *(ch->data_size) = *(ch->data_size) - 5;
     b->ind = -1;
 }
 
