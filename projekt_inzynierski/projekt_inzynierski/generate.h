@@ -298,7 +298,7 @@ public:
     }
 };
 
-void remData(float* data, int* data_size, CHUNK* ch, Block* b) {
+void remData(float* data, int* data_size, CHUNK* ch, Octree* oc, Block* b) {
 
     data[b->ind] = data[*data_size - 5];
     data[b->ind + 1] = data[*data_size - 4];

@@ -2,8 +2,9 @@
 #include "octree_node.h"
 #include <vector>
 
+class Octree;
 class CHUNK;
-void remData(float*, int*, CHUNK*, Block*);
+void remData(float*, int*, CHUNK*, Octree*, Block*);
 
 class Octree {
 
@@ -228,7 +229,7 @@ private:
     }
 
     void deleteFromFullBlocks(Block* n) {
-        remData(data, data_size, chunk, n);
+        remData(data, data_size, chunk, this, n);
     }
 
     void merge(int x, int y, int z) {
