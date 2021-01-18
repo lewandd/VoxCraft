@@ -508,6 +508,26 @@ void updateVisibleChunks() {
         }
     }
 
+    for (int i = 0; i < numNearChunks; ++i) {
+        for (int j = 0; j < numNearChunks; ++j) {
+            if (nearChunks[i][j] != NULL) {
+                nearChunks[i][j]->n[0] = NULL;
+                nearChunks[i][j]->n[1] = NULL;
+                nearChunks[i][j]->n[2] = NULL;
+                nearChunks[i][j]->n[3] = NULL;
+
+                if (i + 1 < numNearChunks)
+                    nearChunks[i][j]->n[0] = nearChunks[i + 1][j];
+                if (i - 1 >= 0)
+                    nearChunks[i][j]->n[1] = nearChunks[i - 1][j];
+                if (j + 1 < numNearChunks)
+                    nearChunks[i][j]->n[2] = nearChunks[i][j + 1];
+                if (j - 1 >= 0)
+                    nearChunks[i][j]->n[3] = nearChunks[i][j - 1];
+            }
+        }
+    }
+
     // sort
     sort(visibleChunks.begin(), visibleChunks.end(), compareChunks);
 }

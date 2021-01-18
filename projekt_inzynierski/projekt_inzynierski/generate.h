@@ -82,6 +82,7 @@ public:
     int data_size;
     int x, y;
     bool set;
+    CHUNK* n[4];
 
     CHUNK() {
         int max_size = 60000;// 5 * 16 * 16 * 16 * 8 * 0.5;
