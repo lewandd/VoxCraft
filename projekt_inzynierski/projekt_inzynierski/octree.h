@@ -139,21 +139,15 @@ public:
     }
 
     Block* getBlock(int x, int y, int z) {
-        Block* target = root;
-        Block* tmp = root;
-        int level = 0;
-        int ind;
-        unsigned int offset = 1 << (MAX_LEVEL - 1);
+        if (root == NULL)
+            return root;
 
-        while (tmp != NULL) {
-            target = tmp;
-            level++;
-            ind = ((x & offset) << 2 | ((y & offset) << 1) | ((z & offset))) >> (MAX_LEVEL - level);
-            tmp = target->getChild(ind);
-            offset >>= 1;
-        }
+        Block* tm = root;
+        int lvl = 0;
+        while (tm->ch[INDEX[lvl][x][y][z]] != NULL)
+            tm = tm->ch[INDEX[lvl++][x][y][z]];
 
-        return target;
+        return tm;
     }
 
     void show(Block* n) {
