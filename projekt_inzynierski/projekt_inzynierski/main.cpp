@@ -99,6 +99,31 @@ int main() {
     Shader interfaceShader("interface.vs", "interface.fs");
     Shader selectShader("select.vs", "select.fs");
 
+    // prepare data
+
+    for (int lvl = 0; lvl < 5; ++lvl) {
+        for (int x = 0; x < 16; ++x) {
+            for (int y = 0; y < 16; ++y) {
+                for (int z = 0; z < 16; ++z) {
+                    int offset = 1 << (MAX_LEVEL - lvl - 1);
+                    INDEX[lvl][x][y][z] = ((x & offset) << 2 | ((y & offset) << 1) | ((z & offset))) >> (MAX_LEVEL - lvl - 1);
+                }
+            }
+        }
+    }
+
+    for (int lvl = 0; lvl < 5; ++lvl) {
+        for (int x = 0; x < 16; ++x) {
+            for (int y = 0; y < 16; ++y) {
+                for (int z = 0; z < 16; ++z) {
+                    POSITION[lvl][x][y][z][0] = (x >> (MAX_LEVEL - lvl)) << (MAX_LEVEL - lvl);
+                    POSITION[lvl][x][y][z][1] = (y >> (MAX_LEVEL - lvl)) << (MAX_LEVEL - lvl);
+                    POSITION[lvl][x][y][z][2] = (z >> (MAX_LEVEL - lvl)) << (MAX_LEVEL - lvl);
+                }
+            }
+        }
+    }
+
     // targetVAO
 
     unsigned int targetVBO, targetVAO;

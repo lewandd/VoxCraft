@@ -2,6 +2,8 @@
 #include "constans.h"
 using namespace std;
 
+int INDEX[5][16][16][16];
+int POSITION[5][16][16][16][3];
 
 struct TRI_ARGS {
     float x, y, z;
