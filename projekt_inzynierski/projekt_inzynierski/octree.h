@@ -10,7 +10,7 @@ void addData(CHUNK*, Octree*, Block*);
 class Octree {
 
 public:
-    Block* root = new Block(0, 0, 0, 0, 0);
+    Block* root;
     CHUNK* chunk;
     int x, y, o;
 
@@ -19,6 +19,7 @@ public:
         this->y = y_;
         this->o = o_;
         this->chunk = chunk_;
+        root = NULL;
     }
 
     void addMinMap(float ***minMap, int lvl, int x, int y, int z, int type, int z0) {
@@ -37,7 +38,10 @@ public:
     }
 
     void add(int x, int y, int z, int type) {
-        if (getBlock(x, y, z)->isFull()) {
+        if (root == NULL)
+            root = new Block(0, 0, 0, 0, 0);
+        
+        if (getBlock(x, y, z)->isFull())    {
             printf("WARNING (add): block already exist (%d, %d, %d)\n", x, y, z);
             return;
         }
@@ -73,6 +77,9 @@ public:
     }
 
     void setFullBlock(int x, int y, int z, int type, int target_level) {
+        if (root == NULL)
+            root = new Block(0, 0, 0, 0, 0);
+        
         if (target_level == 0) {
             root->setFull(type);
             addToFullBlocks(root);
