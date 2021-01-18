@@ -82,6 +82,7 @@ public:
     int data_size;
     int x, y;
     bool set;
+    float** hMap;
     CHUNK* n[4];
 
     CHUNK() {
@@ -89,6 +90,10 @@ public:
         this->data = new float[max_size];
         this->set = false;
         data_size = 0;
+
+        hMap = new float* [CHUNK_SIZE];
+        for (int i = 0; i < CHUNK_SIZE; ++i)
+            hMap[i] = new float[CHUNK_SIZE];
 
         // instanceVBO
 
@@ -184,11 +189,6 @@ public:
             noise[noise_x][noise_y] = p2Noise;
             //noise[noise_x][noise_y] = p.getAll();
         }
-
-        float** hMap;
-        hMap = new float* [CHUNK_SIZE];
-        for (int i = 0; i < CHUNK_SIZE; ++i)
-            hMap[i] = new float[CHUNK_SIZE];
 
         for (int i = 0; i < CHUNK_SIZE; ++i) {
             for (int j = 0; j < CHUNK_SIZE; ++j) {
