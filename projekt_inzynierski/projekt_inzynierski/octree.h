@@ -80,50 +80,19 @@ public:
         if (root == NULL)
             root = new Block(0, 0, 0, 0, 0);
         
-        if (target_level == 0) {
-            root->setFull(type);
-            addToFullBlocks(root);
-            return;
+        Block* tm = root;
+
+        int size = 1 << ((MAX_LEVEL - target_level) * 3);
+
+        for (int i = 0; i < target_level; ++i) {
+            if (tm->ch[INDEX[i][x][y][z]] == NULL)
+                tm->ch[INDEX[i][x][y][z]] = new Block(i + 1, 0, POSITION[i + 1][x][y][z][0], POSITION[i + 1][x][y][z][1], POSITION[i + 1][x][y][z][2]);
+            tm->size += size;
+            tm = tm->ch[INDEX[i][x][y][z]];
         }
-        
-        if (getBlock(x, y, z)->isFull()) {
-            printf("WARNING (add): block already exist (%d, %d, %d)\n", x, y, z);
-            return;
-        }
-        if (type == 0) {
-            printf("WARNING (add): block with type = 0 (%d, %d, %d)\n", x, y, z);
-            return;
-        }
-
-        Block* target = root;
-        Block* tmp = root;
-        int level = 0;
-        int ind;
-
-        while (tmp != NULL) {
-            target = tmp;
-            target->size += 1 << ((MAX_LEVEL - target_level) * 3);
-            ind = target->getChildInd(x, y, z);
-            tmp = target->getChild(ind);
-            level++;
-        }
-
-        if (level > target_level) {
-            printf("WARNING (add): full block exist (%d, %d, %d)\n", x, y, z);
-            return;
-        }
-
-        while (level <= target_level) {
-            target = target->setChild(ind);
-            target->size += 1 << ((MAX_LEVEL - target_level) * 3);
-
-            ind = target->getChildInd(x, y, z);
-            level++;
-        }
-
-        target->setFull(type);
-        addToFullBlocks(target);
-
+        tm->size = size;
+        tm->type = type;
+        addToFullBlocks(tm);
     }
 
     int remove(int x, int y, int z) {
