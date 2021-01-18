@@ -163,7 +163,7 @@ public:
             o[i] = NULL;
 
         o[0] = new Octree(this, x, y, 0);
-        o[0]->setFullBlock(0, 0, 0, 3, MAX_LEVEL - 4);
+        o[0]->setFullBlock(0, 0, 0, 3, MAX_LEVEL - 4, false, false, false, false, false, false);
 
         // stone top layer
 
@@ -203,25 +203,25 @@ public:
         for (int i = 0; i < MAX_DIM_SIZE; i += 2) {
             for (int j = 0; j < MAX_DIM_SIZE; j += 2) {
                 if (SAME((int)(16 * hMap[i][j]), (int)(16 * hMap[i][j + 1]), (int)(16 * hMap[i + 1][j]), (int)(16 * hMap[i + 1][j + 1])) && ((int)(16 * hMap[i][j]) % 2 == 0)) {
-                    o[1]->setFullBlock(i, (int)(hMap[i][j] * 16) + 16, j, 2, MAX_LEVEL - 1);
+                    o[1]->setFullBlock(i, (int)(hMap[i][j] * 16) + 16, j, 2, MAX_LEVEL - 1, false, false, false, false, false, false);
                 }
                 else {
-                    o[1]->setFullBlock(i, (int)(hMap[i][j] * 16), j, 2, MAX_LEVEL);
-                    o[1]->setFullBlock(i, (int)(hMap[i][j] * 16) + 1, j, 2, MAX_LEVEL);
+                    o[1]->setFullBlock(i, (int)(hMap[i][j] * 16), j, 2, MAX_LEVEL, false, false, false, false, false, false);
+                    o[1]->setFullBlock(i, (int)(hMap[i][j] * 16) + 1, j, 2, MAX_LEVEL, false, false, false, false, false, false);
 
-                    o[1]->setFullBlock(i, (int)(hMap[i][j + 1] * 16), j + 1, 2, MAX_LEVEL);
-                    o[1]->setFullBlock(i, (int)(hMap[i][j + 1] * 16) + 1, j + 1, 2, MAX_LEVEL);
+                    o[1]->setFullBlock(i, (int)(hMap[i][j + 1] * 16), j + 1, 2, MAX_LEVEL, false, false, false, false, false, false);
+                    o[1]->setFullBlock(i, (int)(hMap[i][j + 1] * 16) + 1, j + 1, 2, MAX_LEVEL, false, false, false, false, false, false);
 
-                    o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j] * 16), j, 2, MAX_LEVEL);
-                    o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j] * 16) + 1, j, 2, MAX_LEVEL);
+                    o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j] * 16), j, 2, MAX_LEVEL, false, false, false, false, false, false);
+                    o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j] * 16) + 1, j, 2, MAX_LEVEL, false, false, false, false, false, false);
 
-                    o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j + 1] * 16), j + 1, 2, MAX_LEVEL);
-                    o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j + 1] * 16) + 1, j + 1, 2, MAX_LEVEL);
+                    o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j + 1] * 16), j + 1, 2, MAX_LEVEL, false, false, false, false, false, false);
+                    o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j + 1] * 16) + 1, j + 1, 2, MAX_LEVEL, false, false, false, false, false, false);
                 }
-                o[1]->setFullBlock(i, (int)(hMap[i][j] * 16) + 2, j, 1, MAX_LEVEL);
-                o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j] * 16) + 2, j, 1, MAX_LEVEL);
-                o[1]->setFullBlock(i, (int)(hMap[i][j + 1] * 16) + 2, j + 1, 1, MAX_LEVEL);
-                o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j + 1] * 16) + 2, j + 1, 1, MAX_LEVEL);
+                o[1]->setFullBlock(i, (int)(hMap[i][j] * 16) + 2, j, 1, MAX_LEVEL, false, false, false, true, false, false);
+                o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j] * 16) + 2, j, 1, MAX_LEVEL, false, false, false, true, false, false);
+                o[1]->setFullBlock(i, (int)(hMap[i][j + 1] * 16) + 2, j + 1, 1, MAX_LEVEL, false, false, false, true, false, false);
+                o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j + 1] * 16) + 2, j + 1, 1, MAX_LEVEL, false, false, false, true, false, false);
             }
         }
 
@@ -267,15 +267,17 @@ public:
 
 void addData(CHUNK* ch, Octree* oc, Block* b) {
     for (int i = 0; i < 6; ++i) {
-        b->ind[i] = ch->data_size;
+        if (b->vis[i]) {
+            b->ind[i] = ch->data_size;
 
-        ch->data[ch->data_size] = b->x + 16 * oc->x;
-        ch->data[ch->data_size + 1] = b->y + 16 * oc->o;
-        ch->data[ch->data_size + 2] = b->z + 16 * oc->y;
-        ch->data[ch->data_size + 3] = 1 << (MAX_LEVEL - b->level);
-        ch->data[ch->data_size + 4] = b->type;
-        ch->data[ch->data_size + 5] = i;
-        ch->data_size = ch->data_size + 6;
+            ch->data[ch->data_size] = b->x + 16 * oc->x;
+            ch->data[ch->data_size + 1] = b->y + 16 * oc->o;
+            ch->data[ch->data_size + 2] = b->z + 16 * oc->y;
+            ch->data[ch->data_size + 3] = 1 << (MAX_LEVEL - b->level);
+            ch->data[ch->data_size + 4] = b->type;
+            ch->data[ch->data_size + 5] = i;
+            ch->data_size = ch->data_size + 6;
+        }
     }
 }
 

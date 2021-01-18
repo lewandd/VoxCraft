@@ -33,11 +33,15 @@ public:
     int size;
     int max_size;
     int ind[6];
+    bool vis[6];
 
     Block(int level, int type, int x, int y, int z) {
         for (int i = 0; i < 6; ++i)
             ind[i] = -1;
         
+        for (int i = 0; i < 6; ++i)
+            vis[i] = false;
+
         for (int i = 0; i < 8; ++i)
             ch[i] = NULL;
         this->x = (x >> (MAX_LEVEL - level)) << (MAX_LEVEL - level);

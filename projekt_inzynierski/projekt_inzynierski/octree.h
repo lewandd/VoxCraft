@@ -25,7 +25,7 @@ public:
     void addMinMap(float ***minMap, int lvl, int x, int y, int z, int type, int z0) {
         if (lvl >= 0) {
             if (minMap[lvl][x][y]*16 >= (1 << lvl)+z) {
-                setFullBlock(x<<lvl, z0+z, y << lvl, type, MAX_LEVEL-lvl);
+                setFullBlock(x<<lvl, z0+z, y << lvl, type, MAX_LEVEL-lvl, false, false, false, false, false, false);
                 addMinMap(minMap, lvl, x, y, z + (1<<lvl), type, z0);
             }
             else {
@@ -76,7 +76,7 @@ public:
         merge(x, y, z);
     }
 
-    void setFullBlock(int x, int y, int z, int type, int target_level) {
+    void setFullBlock(int x, int y, int z, int type, int target_level, bool v0, bool v1, bool v2, bool v3, bool v4, bool v5) {
         if (root == NULL)
             root = new Block(0, 0, 0, 0, 0);
         
@@ -92,6 +92,12 @@ public:
         }
         tm->size = size;
         tm->type = type;
+        tm->vis[0] = v0;
+        tm->vis[1] = v1;
+        tm->vis[2] = v2;
+        tm->vis[3] = v3;
+        tm->vis[4] = v4;
+        tm->vis[5] = v5;
         addToFullBlocks(tm);
     }
 
