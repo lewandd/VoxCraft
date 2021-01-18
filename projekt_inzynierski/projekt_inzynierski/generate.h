@@ -46,41 +46,6 @@ float vertices[] = {
     0.0f, 0.0f, 0.0f,   1.0f, 0.0f,   0.0f,
     0.0f, 1.0f, 0.0f,   1.0f, 1.0f,   0.0f,
     1.0f, 1.0f, 0.0f,   0.0f, 1.0f,   0.0f,
-
-    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   0.0f,// right side
-    1.0f, 0.0f, 1.0f,   1.0f, 0.0f,   0.0f,
-    1.0f, 1.0f, 1.0f,   1.0f, 1.0f,   0.0f,
-    1.0f, 1.0f, 1.0f,   1.0f, 1.0f,   0.0f,
-    0.0f, 1.0f, 1.0f,   0.0f, 1.0f,   0.0f,
-    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   0.0f,
-
-    0.0f, 1.0f, 1.0f,   1.0f, 1.0f,   0.0f, // front
-    0.0f, 1.0f, 0.0f,   0.0f, 1.0f,   0.0f,
-    0.0f, 0.0f, 0.0f,   0.0f, 0.0f,   0.0f,
-    0.0f, 0.0f, 0.0f,   0.0f, 0.0f,   0.0f,
-    0.0f, 0.0f, 1.0f,   1.0f, 0.0f,   0.0f,
-    0.0f, 1.0f, 1.0f,   1.0f, 1.0f,   0.0f,
-
-    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   0.0f, // back
-    1.0f, 1.0f, 0.0f,   1.0f, 1.0f,   0.0f,
-    1.0f, 1.0f, 1.0f,   0.0f, 1.0f,   0.0f,
-    1.0f, 1.0f, 1.0f,   0.0f, 1.0f,   0.0f,
-    1.0f, 0.0f, 1.0f,   0.0f, 0.0f,   0.0f,
-    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   0.0f,
-
-    0.0f, 0.0f, 0.0f,   0.0f, 0.0f,   1.0f, // down
-    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,   1.0f,
-    1.0f, 0.0f, 1.0f,   1.0f, 1.0f,   1.0f,
-    1.0f, 0.0f, 1.0f,   1.0f, 1.0f,   1.0f,
-    0.0f, 0.0f, 1.0f,   0.0f, 1.0f,   1.0f,
-    0.0f, 0.0f, 0.0f,   0.0f, 0.0f,   1.0f,
-
-    1.0f, 1.0f, 1.0f,   1.0f, 0.0f,   2.0f, // up
-    1.0f, 1.0f, 0.0f,   1.0f, 1.0f,   2.0f,
-    0.0f, 1.0f, 0.0f,   0.0f, 1.0f,   2.0f,
-    0.0f, 1.0f, 0.0f,   0.0f, 1.0f,   2.0f,
-    0.0f, 1.0f, 1.0f,   0.0f, 0.0f,   2.0f,
-    1.0f, 1.0f, 1.0f,   1.0f, 0.0f,   2.0f,
 };
 
 float target_vertices[] = {
@@ -119,7 +84,7 @@ public:
     bool set;
 
     CHUNK() {
-        int max_size = 10000;// 5 * 16 * 16 * 16 * 8 * 0.5;
+        int max_size = 60000;// 5 * 16 * 16 * 16 * 8 * 0.5;
         this->data = new float[max_size];
         this->set = false;
         data_size = 0;
@@ -158,16 +123,20 @@ public:
         glBindBuffer(GL_ARRAY_BUFFER, this->instanceVBO);
 
         glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
         glVertexAttribDivisor(3, 1);
 
         glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+        glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
         glVertexAttribDivisor(4, 1);
 
         glEnableVertexAttribArray(5);
-        glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(4 * sizeof(float)));
+        glVertexAttribPointer(5, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(4 * sizeof(float)));
         glVertexAttribDivisor(5, 1);
+
+        glEnableVertexAttribArray(6);
+        glVertexAttribPointer(6, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(5 * sizeof(float)));
+        glVertexAttribDivisor(6, 1);
 
         glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
 
@@ -296,35 +265,42 @@ public:
 };
 
 void addData(CHUNK* ch, Octree* oc, Block* b) {
-    b->ind = ch->data_size;
+    for (int i = 0; i < 6; ++i) {
+        b->ind[i] = ch->data_size;
 
-    ch->data[ch->data_size] = b->x + 16 * oc->x;
-    ch->data[ch->data_size + 1] = b->y + 16 * oc->o;
-    ch->data[ch->data_size + 2] = b->z + 16 * oc->y;
-    ch->data[ch->data_size + 3] = 1 << (MAX_LEVEL - b->level);
-    ch->data[ch->data_size + 4] = b->type;
-    ch->data_size = ch->data_size + 5;
+        ch->data[ch->data_size] = b->x + 16 * oc->x;
+        ch->data[ch->data_size + 1] = b->y + 16 * oc->o;
+        ch->data[ch->data_size + 2] = b->z + 16 * oc->y;
+        ch->data[ch->data_size + 3] = 1 << (MAX_LEVEL - b->level);
+        ch->data[ch->data_size + 4] = b->type;
+        ch->data[ch->data_size + 5] = i;
+        ch->data_size = ch->data_size + 6;
+    }
 }
 
 void remData(CHUNK* ch, Octree* oc, Block* b) {
+    for (int i = 0; i < 6; ++i) {
+        if (b->ind[i] != -1) {
+            ch->data[b->ind[i]] = ch->data[ch->data_size - 6];
+            ch->data[b->ind[i] + 1] = ch->data[ch->data_size - 5];
+            ch->data[b->ind[i] + 2] = ch->data[ch->data_size - 4];
+            ch->data[b->ind[i] + 3] = ch->data[ch->data_size - 3];
+            ch->data[b->ind[i] + 4] = ch->data[ch->data_size - 2];
+            ch->data[b->ind[i] + 5] = ch->data[ch->data_size - 1];
 
-    ch->data[b->ind] = ch->data[ch->data_size - 5];
-    ch->data[b->ind + 1] = ch->data[ch->data_size - 4];
-    ch->data[b->ind + 2] = ch->data[ch->data_size - 3];
-    ch->data[b->ind + 3] = ch->data[ch->data_size - 2];
-    ch->data[b->ind + 4] = ch->data[ch->data_size - 1];
+            int octreeID = (int)ch->data[ch->data_size - 5] / 16;
+            Octree* o = ch->o[octreeID];
+            int block_x = (int)ch->data[ch->data_size - 6] % 16;
+            int block_y = (int)ch->data[ch->data_size - 5] % 16;
+            int block_z = (int)ch->data[ch->data_size - 4] % 16;
 
-    int octreeID = (int)ch->data[ch->data_size - 4] / 16;
-    Octree *o = ch->o[octreeID];
-    int block_x = (int)ch->data[ch->data_size - 5] % 16;
-    int block_y = (int)ch->data[ch->data_size - 4] % 16;
-    int block_z = (int)ch->data[ch->data_size - 3] % 16;
+            Block* n = o->getBlock(block_x, block_y, block_z);
+            n->ind[i] = b->ind[i];
 
-    Block* n = o->getBlock(block_x, block_y, block_z);
-    n->ind = b->ind;
-
-    ch->data_size = ch->data_size - 5;
-    b->ind = -1;
+            ch->data_size = ch->data_size - 6;
+            b->ind[i] = -1;
+        }
+    }
 }
 
 float*** getMinMap(float** hMap) {

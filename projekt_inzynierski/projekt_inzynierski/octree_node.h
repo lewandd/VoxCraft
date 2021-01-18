@@ -30,9 +30,12 @@ public:
     int level;
     int size;
     int max_size;
-    int ind = -1;
+    int ind[6];
 
     Block(int level, int type, int x, int y, int z) {
+        for (int i = 0; i < 6; ++i)
+            ind[i] = -1;
+        
         for (int i = 0; i < 8; ++i)
             ch[i] = NULL;
         this->x = (x >> (MAX_LEVEL - level)) << (MAX_LEVEL - level);
