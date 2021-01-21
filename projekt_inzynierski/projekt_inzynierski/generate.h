@@ -83,6 +83,7 @@ public:
     int x, y;
     bool set;
     float** hMap;
+    bool** treeMap;
     CHUNK* n[4];
 
     CHUNK() {
@@ -94,6 +95,14 @@ public:
         hMap = new float* [CHUNK_SIZE];
         for (int i = 0; i < CHUNK_SIZE; ++i)
             hMap[i] = new float[CHUNK_SIZE];
+
+        treeMap = new bool* [CHUNK_SIZE];
+        for (int i = 0; i < CHUNK_SIZE; ++i)
+            treeMap[i] = new bool[CHUNK_SIZE];
+
+        for (int i = 0; i < CHUNK_SIZE; ++i)
+            for (int j = 0; j < CHUNK_SIZE; ++j)
+                treeMap[i][j] = false;
 
         // instanceVBO
 
@@ -217,6 +226,136 @@ public:
                 o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j] * 16) + 2, j, 1, MAX_LEVEL, false, false, false, true, false, false);
                 o[1]->setFullBlock(i, (int)(hMap[i][j + 1] * 16) + 2, j + 1, 1, MAX_LEVEL, false, false, false, true, false, false);
                 o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j + 1] * 16) + 2, j + 1, 1, MAX_LEVEL, false, false, false, true, false, false);
+            }
+        }
+
+        Perlin p(NOISE_MAP_SIZE, 64, 1);
+        p.setSeed(noise_x, noise_y);
+        float** treeNoise = p.getAll();
+
+        srand(200 * x + y);
+        for (int i = 0; i < CHUNK_SIZE; ++i) {
+            for (int j = 0; j < CHUNK_SIZE; ++j) {
+                int ind_x = (x * CHUNK_SIZE) % NOISE_MAP_SIZE + i;
+                int ind_y = (y * CHUNK_SIZE) % NOISE_MAP_SIZE + j;
+                if (treeNoise[ind_x][ind_y] < 0.5) {
+                    // forest
+                    if (rand() % 200 < 4) {
+                        // add tree
+                        
+                        if (i >= 2 && i <= 13 && j >= 2 && j <= 13) {
+                            bool haveSpace = true;
+                            for (int k = -2; k <= 2; ++k)
+                                for (int l = -2; l <= 2; ++l) {
+                                    if (treeMap[i + k][j + l])
+                                        haveSpace = false;
+                                }
+
+                            if (haveSpace) {
+                                treeMap[i][j] = true;
+                                int octreeId = 1;
+                                
+                                int height = int(hMap[i][j] * 16) + 3;
+                                if (height > 15) {
+                                    height %= 16;
+                                    octreeId = 2;
+                                    if (o[2] == NULL)
+                                        o[2] = new Octree(this, x, y, 2);
+                                }
+                                o[octreeId]->setFullBlock(i, height, j, 4, 4, true, true, false, false, true, true);
+                                
+                                height = int(hMap[i][j] * 16) + 4;
+                                if (height > 15) {
+                                    height %= 16;
+                                    octreeId = 2;
+                                    if (o[2] == NULL)
+                                        o[2] = new Octree(this, x, y, 2);
+                                }
+                                o[octreeId]->setFullBlock(i, height, j, 4, 4, true, true, false, false, true, true);
+                                
+                                height = int(hMap[i][j] * 16) + 5;
+                                if (height > 15) {
+                                    height %= 16;
+                                    octreeId = 2;
+                                    if (o[2] == NULL)
+                                        o[2] = new Octree(this, x, y, 2);
+                                }
+                                o[octreeId]->setFullBlock(i, height, j, 4, 4, true, true, false, true, true, true);
+
+                                height = int(hMap[i][j] * 16) + 6;
+                                if (height > 15) {
+                                    height %= 16;
+                                    octreeId = 2;
+                                    if (o[2] == NULL)
+                                        o[2] = new Octree(this, x, y, 2);
+                                }
+                                o[octreeId]->setFullBlock(i, height, j-1, 5, 4, false, false, true, false, true, false);
+                                o[octreeId]->setFullBlock(i, height, j, 5, 4, false, false, false, true, false, false);
+                                o[octreeId]->setFullBlock(i, height, j+1, 5, 4, false, false, true, false, false, true);
+
+                                o[octreeId]->setFullBlock(i-1, height, j-1, 5, 4, true, false, true, false, true, false);
+                                o[octreeId]->setFullBlock(i-1, height, j, 5, 4, true, false, true, false, false, false);
+                                o[octreeId]->setFullBlock(i-1, height, j+1, 5, 4, true, false, true, false, false, true);
+
+                                o[octreeId]->setFullBlock(i+1, height, j-1, 5, 4, false, true, true, false, true, false);
+                                o[octreeId]->setFullBlock(i+1, height, j, 5, 4, false, true, true, false, false, false);
+                                o[octreeId]->setFullBlock(i+1, height, j+1, 5, 4, false, true, true, false, false, true);
+
+                                height = int(hMap[i][j] * 16) + 7;
+                                if (height > 15) {
+                                    height %= 16;
+                                    octreeId = 2;
+                                    if (o[2] == NULL)
+                                        o[2] = new Octree(this, x, y, 2);
+                                }
+                                o[octreeId]->setFullBlock(i, height, j - 1, 5, 4, false, false, false, false, true, true);
+                                o[octreeId]->setFullBlock(i, height, j + 1, 5, 4, false, false, false, false, true, true);
+                                o[octreeId]->setFullBlock(i - 1, height, j - 1, 5, 4, true, false, false, false, true, false);
+                                o[octreeId]->setFullBlock(i - 1, height, j, 5, 4, true, true, true, false, false, false);
+                                o[octreeId]->setFullBlock(i - 1, height, j + 1, 5, 4, true, false, false, false, false, true);
+                                o[octreeId]->setFullBlock(i + 1, height, j - 1, 5, 4, false, true, false, false, true, false);
+                                o[octreeId]->setFullBlock(i + 1, height, j, 5, 4, true, true, false, false, false, false);
+                                o[octreeId]->setFullBlock(i + 1, height, j + 1, 5, 4, false, true, false, false, false, true);
+                                
+                                height = int(hMap[i][j] * 16) + 8;
+                                if (height > 15) {
+                                    height %= 16;
+                                    octreeId = 2;
+                                    if (o[2] == NULL)
+                                        o[2] = new Octree(this, x, y, 2);
+                                }
+                                o[octreeId]->setFullBlock(i, height, j - 1, 5, 4, false, false, false, false, true, true);
+                                o[octreeId]->setFullBlock(i, height, j + 1, 5, 4, false, false, false, false, true, true);
+                                o[octreeId]->setFullBlock(i - 1, height, j - 1, 5, 4, true, false, false, false, true, false);
+                                o[octreeId]->setFullBlock(i - 1, height, j, 5, 4, true, true, true, false, false, false);
+                                o[octreeId]->setFullBlock(i - 1, height, j + 1, 5, 4, true, false, false, false, false, true);
+                                o[octreeId]->setFullBlock(i + 1, height, j - 1, 5, 4, false, true, false, false, true, false);
+                                o[octreeId]->setFullBlock(i + 1, height, j, 5, 4, true, true, false, false, false, false);
+                                o[octreeId]->setFullBlock(i + 1, height, j + 1, 5, 4, false, true, false, false, false, true);
+                                
+                                height = int(hMap[i][j] * 16) + 9;
+                                if (height > 15) {
+                                    height %= 16;
+                                    octreeId = 2;
+                                    if (o[2] == NULL)
+                                        o[2] = new Octree(this, x, y, 2);
+                                }
+                                o[octreeId]->setFullBlock(i, height, j - 1, 5, 4, false, false, false, true, true, false);
+                                o[octreeId]->setFullBlock(i, height, j, 5, 4, false, false, true, true, false, false);
+                                o[octreeId]->setFullBlock(i, height, j + 1, 5, 4, false, false, false, true, false, true);
+
+                                o[octreeId]->setFullBlock(i - 1, height, j - 1, 5, 4, true, false, false, true, true, false);
+                                o[octreeId]->setFullBlock(i - 1, height, j, 5, 4, true, false, false, true, false, false);
+                                o[octreeId]->setFullBlock(i - 1, height, j + 1, 5, 4, true, false, false, true, false, true);
+
+                                o[octreeId]->setFullBlock(i + 1, height, j - 1, 5, 4, false, true, false, true, true, false);
+                                o[octreeId]->setFullBlock(i + 1, height, j, 5, 4, false, true, false, true, false, false);
+                                o[octreeId]->setFullBlock(i + 1, height, j + 1, 5, 4, false, true, false, true, false, true);
+                                
+                            }
+                        }
+                    }
+                }
             }
         }
 
