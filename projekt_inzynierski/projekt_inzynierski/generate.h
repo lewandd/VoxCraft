@@ -86,7 +86,7 @@ public:
     CHUNK* n[4];
 
     CHUNK() {
-        int max_size = 60000;// 5 * 16 * 16 * 16 * 8 * 0.5;
+        int max_size = 12000;
         this->data = new float[max_size];
         this->set = false;
         data_size = 0;
