@@ -6,6 +6,9 @@ class Octree;
 class CHUNK;
 void remData(CHUNK*, Octree*, Block*);
 void addData(CHUNK*, Octree*, Block*);
+void addSingleData(CHUNK*, Octree*, Block*, int);
+Block* getNeighbour(CHUNK* ch, Octree* o, int bx, int by, int bz, int blvl, CHUNK **neighch, Octree **neigho, int i, int &nchx, int &nchy);
+void updateChunk(CHUNK* ch, int neigh);
 
 class Octree {
 
@@ -98,7 +101,7 @@ public:
         tm->vis[3] = v3;
         tm->vis[4] = v4;
         tm->vis[5] = v5;
-        addToFullBlocks(tm);
+        addData(chunk, this, tm);
     }
 
     int remove(int x, int y, int z) {
@@ -114,7 +117,7 @@ public:
         for (int lvl = 0; lvl < (int)blocks.size(); ++lvl) {
             // delete from full blocks
             if (blocks[lvl]->sameType())
-                deleteFromFullBlocks(blocks[lvl]);
+                deleteFromFullBlocks(blocks[lvl], true);
 
             blocks[lvl]->size--;
         }
@@ -129,6 +132,12 @@ public:
                 if (i != blocks[lvl - 1]->getChildInd(x, y, z))
                     addToFullBlocks(blocks[lvl - 1]->getChild(i));
             }
+            if (lvl == MAX_LEVEL) {
+                Block* to_del = blocks[lvl - 1]->getChild(x, y, z);
+                addToFullBlocks(to_del);
+                deleteFromFullBlocks(to_del, true);
+            }
+
             blocks[lvl - 1]->getChild(x, y, z)->size--;
             blocks.push_back(blocks[lvl - 1]->getChild(x, y, z));
         }
@@ -191,11 +200,120 @@ public:
 
 private:
     void addToFullBlocks(Block* n) {
+        for (int j = 0; j < 6; ++j) {
+            CHUNK *neighch;
+            Octree *neigho;
+            int nchx, nchy;
+            Block* neigh = getNeighbour(chunk, this, n->x, n->y, n->z, n->level, &neighch, &neigho, j, nchx, nchy);
+
+            int bsize = 1 << (MAX_LEVEL - n->level);
+            if (neigh == NULL && j == 3 && (n->y + bsize + 16) % 16 == 0 && o < 7) {
+                // up side into empty octree
+                n->vis[j] = true;
+            }
+            else if (neigh == NULL) {
+                n->vis[j] = true;
+            }
+            else if (neigh->isFull() == false && neigh->level <= n->level) {
+                n->vis[j] = true;
+            }
+            else if (neigh->isFull() == true && neigh->level == n->level) {
+                n->vis[j] = false;
+                // delete visible neighbour
+            }
+            else if (neigh->isFull() == true && neigh->level > n->level) {
+                n->vis[j] = true;
+            }
+            else {
+                n->vis[j] = false;
+            }
+        }
+        
         addData(chunk, this, n); 
     }
 
-    void deleteFromFullBlocks(Block* n) {
+    void deleteFromFullBlocks(Block* n, bool checkNeigh) {
+        int bsize = 1 << (MAX_LEVEL - n->level);
+
+        bool needToUpdateChunk1 = false;
+        bool needToUpdateChunk2 = false;
+        bool needToUpdateChunk3 = false;
+        bool needToUpdateChunk4 = false;
+
+        if (checkNeigh) {
+
+            for (int j = 0; j < 6; ++j) {
+
+                for (int k = 0; k < bsize; ++k) {
+
+                    for (int l = 0; l < bsize; ++l) {
+                        Block* neigh;
+                        CHUNK* newChunk;
+                        Octree* newOctree;
+                        int nchx, nchy;
+
+                        if (j == 0) {
+                            neigh = getNeighbour(chunk, this, n->x, n->y + k, n->z + l, n->level, &newChunk, &newOctree, 0, nchx, nchy);
+                            if (neigh != NULL && neigh->isFull() && neigh->vis[1] == false) {
+                                if (nchx != this->x || nchy != this->y)
+                                    needToUpdateChunk1 = true;
+                                addSingleData(newChunk, newOctree, neigh, 1);
+                            }
+                        }
+                        if (j == 1) {
+                            neigh = getNeighbour(chunk, this, n->x + bsize - 1, n->y + k, n->z + l, n->level, &newChunk, &newOctree, 1, nchx, nchy);
+                            if (neigh != NULL && neigh->isFull() && neigh->vis[0] == false) {
+                                if (nchx != this->x || nchy != this->y)
+                                    needToUpdateChunk2 = true;
+                                addSingleData(newChunk, newOctree, neigh, 0);
+                            }
+                        }
+                        if (j == 2) {
+                            neigh = getNeighbour(chunk, this, n->x + k, n->y, n->z + l, n->level, &newChunk, &newOctree, 2, nchx, nchy);
+                            if (neigh != NULL && neigh->isFull() && neigh->vis[3] == false) {
+                                addSingleData(newChunk, newOctree, neigh, 3);
+                            }
+                        }
+                        if (j == 3) {
+                            neigh = getNeighbour(chunk, this, n->x + k, n->y + bsize - 1, n->z + l, n->level, &newChunk, &newOctree, 3, nchx, nchy);
+                            if (neigh != NULL && neigh->isFull() && neigh->vis[2] == false) {
+                                addSingleData(newChunk, newOctree, neigh, 2);
+                            }
+                        }
+                        if (j == 4) {
+                            neigh = getNeighbour(chunk, this, n->x + k, n->y + l, n->z, n->level, &newChunk, &newOctree, 4, nchx, nchy);
+                            if (neigh != NULL && neigh->isFull() && neigh->vis[5] == false) {
+                                if (nchx != this->x || nchy != this->y)
+                                    needToUpdateChunk3 = true;
+                                addSingleData(newChunk, newOctree, neigh, 5);
+                            }
+                        }
+                        if (j == 5) {
+                            neigh = getNeighbour(chunk, this, n->x + k, n->y + l, n->z + bsize - 1, n->level, &newChunk, &newOctree, 5, nchx, nchy);
+                            if (neigh != NULL && neigh->isFull() && neigh->vis[4] == false) {
+                                if (nchx != this->x || nchy != this->y)
+                                    needToUpdateChunk4 = true;
+                                addSingleData(newChunk, newOctree, neigh, 4);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         remData(chunk, this, n);
+        if (needToUpdateChunk1) {
+            updateChunk(chunk, 1);
+        }
+        if (needToUpdateChunk2) {
+            updateChunk(chunk, 0);
+        }
+        if (needToUpdateChunk3) {
+            updateChunk(chunk, 3);
+        }
+        if (needToUpdateChunk4) {
+            updateChunk(chunk, 2);
+        }
     }
 
     void merge(int x, int y, int z) {
@@ -211,7 +329,7 @@ private:
                 for (int j = 0; j < MAX_CHILD; ++j) {
                     if (blocksList[i]->getChild(j) != NULL) {
                         // delete
-                        deleteFromFullBlocks(blocksList[i]->getChild(j));
+                        deleteFromFullBlocks(blocksList[i]->getChild(j), false);
                         blocksList[i]->deleteChild(j);
                     }
                 }

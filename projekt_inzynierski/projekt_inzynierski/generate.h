@@ -174,6 +174,15 @@ public:
 
         setNoise(x, y);
 
+        setNoise(x + 1, y);
+        setNoise(x - 1, y);
+        setNoise(x, y + 1);
+        setNoise(x, y - 1);
+        setNoise(x - 1, y - 1);
+        setNoise(x - 1, y + 1);
+        setNoise(x + 1, y - 1);
+        setNoise(x + 1, y + 1);
+
         int noise_x = (x * CHUNK_SIZE) / NOISE_MAP_SIZE;
         int noise_y = (y * CHUNK_SIZE) / NOISE_MAP_SIZE;
         for (int i = 0; i < CHUNK_SIZE; ++i) {
@@ -211,6 +220,53 @@ public:
             }
         }
 
+        int exthMap[18][18];
+        int extX = x;
+        int extY = y;
+        for (int i = -1; i < 17; ++i) {
+            for (int j = -1; j < 17; ++j) {
+                extX = x;
+                extY = y;
+                if      (i == -1) extX -= 1;
+                else if (i == 16) extX += 1;
+                if      (j == -1) extY -= 1;
+                else if (j == 16) extY += 1;
+                int noise_x = (extX * CHUNK_SIZE) / NOISE_MAP_SIZE;
+                int noise_y = (extY * CHUNK_SIZE) / NOISE_MAP_SIZE;
+                float val;
+                if (extX < 0 || extX > CHUNKS_COUNT || extY < 0 || extY > CHUNKS_COUNT)
+                    val = 100000;
+                else {
+                    if (noise_x < NOISE_MAP_COUNT && noise_y < NOISE_MAP_COUNT)
+                        val = noise[noise_x][noise_y][(extX * CHUNK_SIZE) % NOISE_MAP_SIZE + ((i + 16) % 16)][(extY * CHUNK_SIZE) % NOISE_MAP_SIZE + ((j + 16) % 16)];
+                    else
+                        val = 100000;
+                }
+                exthMap[i + 1][j + 1] = int(val * 16.0);
+            }
+        }
+        for (int i = 0; i < 16; ++i) {
+            for (int j = 0; j < 16; ++j) {
+                int h = exthMap[1 + i][1 + j];
+                int h1 = exthMap[1 + i - 1][1 + j];
+                int h2 = exthMap[1 + i + 1][1 + j];
+                int h3 = exthMap[1 + i][1 + j - 1];
+                int h4 = exthMap[1 + i][1 + j + 1];
+                for (int k = h1+3; k < h+3; ++k) {
+                    addSingleData(this, o[1], o[1]->getBlock(i, k, j), 0);
+                }
+                for (int k = h2+3; k < h + 3; ++k) {
+                    addSingleData(this, o[1], o[1]->getBlock(i, k, j), 1);
+                }
+                for (int k = h3 + 3; k < h + 3; ++k) {
+                    addSingleData(this, o[1], o[1]->getBlock(i, k, j), 4);
+                }
+                for (int k = h4 + 3; k < h + 3; ++k) {
+                    addSingleData(this, o[1], o[1]->getBlock(i, k, j), 5);
+                }
+            }
+        }
+
         CHANGE change = changes[x][y];
         for (int i = 0; i < (int)change.action.size(); ++i) {
             ACTION action = change.action[i];
@@ -235,20 +291,22 @@ public:
     void setNoise(int chunk_x, int chunk_y) {
         int noise_x = (chunk_x * CHUNK_SIZE) / NOISE_MAP_SIZE;
         int noise_y = (chunk_y * CHUNK_SIZE) / NOISE_MAP_SIZE;
-        if (noise[noise_x][noise_y] == NULL) {
-            Perlin p(NOISE_MAP_SIZE, FREQ1, 1);
-            Perlin p2(NOISE_MAP_SIZE, FREQ1 / 2, 1);
-            p.setSeed(noise_x, noise_y);
-            p2.setSeed(noise_x, noise_y);
-            float** p1Noise = p.getAll();
-            float** p2Noise = p2.getAll();
-            for (int i = 0; i < NOISE_MAP_SIZE; ++i) {
-                for (int j = 0; j < NOISE_MAP_SIZE; ++j) {
-                    p2Noise[i][j] = (p1Noise[i][j] + p2Noise[i][j]) / 2.0;
+
+        if (((noise_x >= 0) && (noise_y >= 0)) && ((noise_x < NOISE_MAP_COUNT) && (noise_y < NOISE_MAP_COUNT))) {
+            if (noise[noise_x][noise_y] == NULL) {
+                Perlin p(NOISE_MAP_SIZE, FREQ1, 1);
+                Perlin p2(NOISE_MAP_SIZE, FREQ1 / 2, 1);
+                p.setSeed(noise_x, noise_y);
+                p2.setSeed(noise_x, noise_y);
+                float** p1Noise = p.getAll();
+                float** p2Noise = p2.getAll();
+                for (int i = 0; i < NOISE_MAP_SIZE; ++i) {
+                    for (int j = 0; j < NOISE_MAP_SIZE; ++j) {
+                        p2Noise[i][j] = (p1Noise[i][j] + p2Noise[i][j]) / 2.0;
+                    }
                 }
+                noise[noise_x][noise_y] = p2Noise;
             }
-            noise[noise_x][noise_y] = p2Noise;
-            //noise[noise_x][noise_y] = p.getAll();
         }
     }
 
@@ -270,6 +328,19 @@ public:
         glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * data_size, data);
     }
 };
+
+void addSingleData(CHUNK* ch, Octree* oc, Block* b, int i) {
+    b->vis[i] = true;
+    b->ind[i] = ch->data_size;
+
+    ch->data[ch->data_size] = b->x + 16 * oc->x;
+    ch->data[ch->data_size + 1] = b->y + 16 * oc->o;
+    ch->data[ch->data_size + 2] = b->z + 16 * oc->y;
+    ch->data[ch->data_size + 3] = 1 << (MAX_LEVEL - b->level);
+    ch->data[ch->data_size + 4] = b->type;
+    ch->data[ch->data_size + 5] = i;
+    ch->data_size = ch->data_size + 6;
+}
 
 void addData(CHUNK* ch, Octree* oc, Block* b) {
     for (int i = 0; i < 6; ++i) {
@@ -304,12 +375,100 @@ void remData(CHUNK* ch, Octree* oc, Block* b) {
             int block_z = (int)ch->data[ch->data_size - 4] % 16;
 
             Block* n = o->getBlock(block_x, block_y, block_z);
-            n->ind[i] = b->ind[i];
-
+            n->ind[(int)ch->data[ch->data_size - 1]] = b->ind[i];
+            
             ch->data_size = ch->data_size - 6;
             b->ind[i] = -1;
         }
     }
+}
+
+void updateChunk(CHUNK* ch, int neigh) {
+    ch->n[neigh]->update();
+}
+
+Block* getNeighbour(CHUNK* ch, Octree* o, int bx, int by, int bz, int blvl, CHUNK** neighch, Octree** neigho, int i, int &nchx, int &nchy) {
+    CHUNK* nch = ch;
+    Octree* no = o;
+    Block* nb = NULL;
+    int bsize = (1 << int(MAX_LEVEL - blvl));
+    int x = bx, y = by, z = bz;
+
+    if (i == 0) {
+        x = (x - 1 + 16) % 16;
+        if (x == 15) {
+            nch = ch->n[1];
+            if (nch != NULL) {
+                no = nch->o[o->o];
+            }
+        }
+    }
+    if (i == 1) {
+        x = (x + bsize + 16) % 16;
+        if (x == 0) {
+            nch = ch->n[0];
+            if (nch != NULL)
+                no = nch->o[o->o];
+        }
+    }
+    if (i == 2) {
+        y = (y - 1 + 16) % 16;
+        nch = ch;
+        if (y == 15) {
+            if (o->o > 0 && ch->o[o->o - 1] != NULL)
+                no = ch->o[o->o - 1];
+            else {
+                no = NULL;
+            }
+        }
+    }
+    if (i == 3) {
+        y = (y + bsize + 16) % 16;
+        if (y == 0) {
+            nch = ch;
+            if (o->o < 7 && ch->o[o->o + 1] != NULL) {
+                no = ch->o[o->o + 1];
+            }
+            else {
+                no = NULL;
+            }
+        }
+    }
+    if (i == 4) {
+        z = (z - 1 + 16) % 16;
+        if (z == 15) {
+            nch = ch->n[3];
+            if (nch != NULL)
+                no = nch->o[o->o];
+        }
+    }
+    if (i == 5) {
+        z = (z + bsize + 16) % 16;
+        if (z == 0) {         
+            nch = ch->n[2];
+            if (nch != NULL) {
+                no = nch->o[o->o];
+            }
+        }
+    }
+
+    *neighch = NULL;
+    *neigho = NULL;
+
+    if (nch != NULL && no != NULL) {
+        *neighch = nch;
+        *neigho = no;
+        nb = no->getBlock(x, y, z);
+        nchx = nch->x;
+        nchy = nch->y;
+    }
+    else {
+        nb = NULL;
+        nchx = ch->x;
+        nchy = ch->y;
+    }
+
+    return nb;
 }
 
 float*** getMinMap(float** hMap) {
