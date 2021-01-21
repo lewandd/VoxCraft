@@ -601,7 +601,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
             }
             if (ch != NULL) {
                 int type = ch->o[selected_octree]->remove(selected_x, selected_y, selected_z);
-                changes[ch->x][ch->y].action.push_back(ACTION(0, selected_octree, selected_x, selected_y, selected_z, type));
+                changes[ch->x][ch->y].action.push_back(Action(0, selected_octree, selected_x, selected_y, selected_z, type));
                 ch->update();
             }
         }
@@ -676,7 +676,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
                     if (ch != NULL) {
                         ch->o[final_selected_octree]->add(final_selected_x, final_selected_y, final_selected_z, choosedType + 1);
-                        changes[ch->x][ch->y].action.push_back(ACTION(1, final_selected_octree, final_selected_x, final_selected_y, final_selected_z, choosedType + 1));
+                        changes[ch->x][ch->y].action.push_back(Action(1, final_selected_octree, final_selected_x, final_selected_y, final_selected_z, choosedType + 1));
                         ch->update();
                     }
                 }

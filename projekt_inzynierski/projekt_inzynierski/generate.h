@@ -1,30 +1,11 @@
 #pragma once
 #include "octree.h"
+#include "Action.h"
 
 #define SAME(a, b, c, d) ((a == b) && (b == c) && (c == d))
 
-// struktury
-
-struct ACTION {
-    int mode;
-    int octree;
-    int x;
-    int y;
-    int z;
-    int type;
-
-    ACTION(int mode_, int octree_, int x_, int y_, int z_, int type_) {
-        mode = mode_;
-        octree = octree_;
-        x = x_;
-        y = y_;
-        z = z_;
-        type = type_;
-    }
-};
-
 struct CHANGE {
-    vector<ACTION> action;
+    vector<Action> action;
 };
 
 CHANGE changes[CHUNKS_COUNT][CHUNKS_COUNT];
@@ -421,7 +402,7 @@ public:
     void applyChanges() {
         CHANGE change = changes[x][y];
         for (int i = 0; i < (int)change.action.size(); ++i) {
-            ACTION action = change.action[i];
+            Action action = change.action[i];
             if (action.mode == 0) {
                 // usuwanie
                 o[action.octree]->remove(action.x, action.y, action.z);
