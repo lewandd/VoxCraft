@@ -101,6 +101,12 @@ int main() {
 
     // prepare data
 
+    for (int i = 0; i < NOISE_MAP_COUNT; ++i) {
+        for (int j = 0; j < NOISE_MAP_COUNT; ++j) {
+            noise[i][j] = NULL;
+        }
+    }
+
     for (int lvl = 0; lvl < 5; ++lvl) {
         for (int x = 0; x < 16; ++x) {
             for (int y = 0; y < 16; ++y) {
