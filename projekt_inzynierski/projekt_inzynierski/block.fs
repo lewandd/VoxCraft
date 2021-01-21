@@ -10,5 +10,7 @@ in float distance;
 void main()
 {
     FragColor = texture(tex, vec3(TexCoord, (atype-1)*3 + Side));
+        if (FragColor.a < 0.1)
+        discard;
     FragColor.xyz = mix(FragColor.xyz, vec3(0.55f, 0.75f, 0.85f), distance*distance*distance/1000000.0f);
 } 
