@@ -1,5 +1,6 @@
 #pragma once
 #include "octree_node.h"
+#include "constans.h"
 #include <vector>
 
 class Octree;

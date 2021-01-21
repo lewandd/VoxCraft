@@ -1,5 +1,8 @@
 #pragma once
 
+extern int INDEX[5][16][16][16];
+extern int POSITION[5][16][16][16][3];
+
 // Octree
 
 const int MAX_LEVEL = 4;

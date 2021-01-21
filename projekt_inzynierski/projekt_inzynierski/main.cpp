@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "constans.h"
 #include "camera.h"
 #include "shader_s.h"
 #include "octree.h"
@@ -72,6 +73,9 @@ bool compareChunks(CHUNK* ch1, CHUNK* ch2) {
     
     return (cdx1*cdx1 + cdy1 * cdy1 < cdx2 * cdx2 + cdy2 * cdy2);
 }
+
+int INDEX[5][16][16][16];
+int POSITION[5][16][16][16][3];
 
 int main() {
 

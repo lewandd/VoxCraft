@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="octree_node.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
