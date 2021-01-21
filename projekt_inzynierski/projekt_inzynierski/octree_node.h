@@ -5,24 +5,6 @@ using namespace std;
 int INDEX[5][16][16][16];
 int POSITION[5][16][16][16][3];
 
-struct TRI_ARGS {
-    float x, y, z;
-    float scale;
-    int type;
-
-    TRI_ARGS(float x, float y, float z, float scale, int type) {
-        this->x = x;
-        this->y = y;
-        this->z = z;
-        this->scale = scale;
-        this->type = type;
-    }
-
-    void show() {
-        printf("(%.0f, %.0f, %.0f), scale: %.0f, type: %d\n", x, y, z, scale, type);
-    }
-};
-
 class Block {
 public:
 
@@ -79,10 +61,6 @@ public:
 
     bool sameType() {
         return type;
-    }
-
-    TRI_ARGS intoTRI_ARGS() {
-        return TRI_ARGS((float)x, (float)y, (float)z, (float) (1 << (MAX_LEVEL - level)), type);
     }
 
     bool mergeUpdateType() {
