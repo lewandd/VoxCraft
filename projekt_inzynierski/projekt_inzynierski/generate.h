@@ -1,14 +1,11 @@
 #pragma once
 #include "octree.h"
 #include "Action.h"
+#include "Change.h"
 
 #define SAME(a, b, c, d) ((a == b) && (b == c) && (c == d))
 
-struct CHANGE {
-    vector<Action> action;
-};
-
-CHANGE changes[CHUNKS_COUNT][CHUNKS_COUNT];
+Change changes[CHUNKS_COUNT][CHUNKS_COUNT];
 
 float** noise[NOISE_MAP_COUNT][NOISE_MAP_COUNT];
 
@@ -400,7 +397,7 @@ public:
     }
 
     void applyChanges() {
-        CHANGE change = changes[x][y];
+        Change change = changes[x][y];
         for (int i = 0; i < (int)change.action.size(); ++i) {
             Action action = change.action[i];
             if (action.mode == 0) {
