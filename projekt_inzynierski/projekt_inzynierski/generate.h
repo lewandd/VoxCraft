@@ -267,6 +267,14 @@ public:
             }
         }
 
+        applyChanges();
+
+        delete[] minMap;
+
+        update();
+    }
+
+    void applyChanges() {
         CHANGE change = changes[x][y];
         for (int i = 0; i < (int)change.action.size(); ++i) {
             ACTION action = change.action[i];
@@ -282,10 +290,6 @@ public:
                 o[action.octree]->add(action.x, action.y, action.z, action.type);
             }
         }
-
-        delete[] minMap;
-
-        update();
     }
 
     void setNoise(int chunk_x, int chunk_y) {
