@@ -83,7 +83,6 @@ public:
     int x, y;
     bool set;
     float** hMap;
-    bool** treeMap;
     CHUNK* n[4];
 
     CHUNK() {
@@ -95,14 +94,6 @@ public:
         hMap = new float* [CHUNK_SIZE];
         for (int i = 0; i < CHUNK_SIZE; ++i)
             hMap[i] = new float[CHUNK_SIZE];
-
-        treeMap = new bool* [CHUNK_SIZE];
-        for (int i = 0; i < CHUNK_SIZE; ++i)
-            treeMap[i] = new bool[CHUNK_SIZE];
-
-        for (int i = 0; i < CHUNK_SIZE; ++i)
-            for (int j = 0; j < CHUNK_SIZE; ++j)
-                treeMap[i][j] = false;
 
         // instanceVBO
 
@@ -228,6 +219,12 @@ public:
                 o[1]->setFullBlock(i + 1, (int)(hMap[i + 1][j + 1] * 16) + 2, j + 1, 1, MAX_LEVEL, false, false, false, true, false, false);
             }
         }
+
+        bool treeMap[CHUNK_SIZE][CHUNK_SIZE];
+
+        for (int i = 0; i < CHUNK_SIZE; ++i)
+            for (int j = 0; j < CHUNK_SIZE; ++j)
+                treeMap[i][j] = false;
 
         Perlin p(NOISE_MAP_SIZE, 64, 1);
         p.setSeed(noise_x, noise_y);
@@ -408,8 +405,16 @@ public:
 
         applyChanges();
 
+        for (int i = 0; i < 5; ++i) {
+            for (int j = 0; j < MAX_DIM_SIZE >> i; ++j)
+                delete[] minMap[i][j];
+            delete[] minMap[i];
+        }
         delete[] minMap;
 
+        for (int i = 0; i < NOISE_MAP_SIZE; ++i)
+            delete[] treeNoise[i];
+        delete[] treeNoise;
         update();
     }
 
@@ -449,17 +454,19 @@ public:
                     }
                 }
                 noise[noise_x][noise_y] = p2Noise;
+
+                for (int i = 0; i < NOISE_MAP_SIZE; ++i)
+                    delete[] p1Noise[i];
+                delete[] p1Noise;
             }
         }
     }
 
     void clear() {
-        if (set) {
-            for (int i = 0; i < 8; ++i) {
-                if (o[i] != NULL) {
-                    o[i]->deleteAll();
-                    delete this->o[i];
-                }
+        for (int i = 0; i < 8; ++i) {
+            if (o[i] != NULL) {
+                o[i]->deleteAll();
+                delete this->o[i];
             }
         }
     }
