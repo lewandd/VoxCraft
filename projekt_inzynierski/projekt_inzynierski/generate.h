@@ -215,7 +215,7 @@ public:
                 int ind_y = (y * CHUNK_SIZE) % NOISE_MAP_SIZE + j;
                 if (treeNoise[ind_x][ind_y] < 0.5) {
                     // forest
-                    if (rand() % 200 < 4) {
+                    if (rand() % 25 == 0) {
                         // add tree
                         
                         if (i >= 2 && i <= 13 && j >= 2 && j <= 13) {
