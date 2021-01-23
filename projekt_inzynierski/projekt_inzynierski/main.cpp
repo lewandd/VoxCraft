@@ -650,9 +650,9 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
                     break;
             }
             
-            final_selected_x %= 16;
-            final_selected_y %= 16;
-            final_selected_z %= 16;
+            final_selected_x = (final_selected_x + 16) % 16;
+            final_selected_y = (final_selected_y + 16) % 16;
+            final_selected_z = (final_selected_z + 16) % 16;
 
             // check if correct position coords
             if (final_selected_chunk_x >= 0 && final_selected_chunk_x < CHUNKS_COUNT && 
