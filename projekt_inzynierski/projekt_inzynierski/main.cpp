@@ -278,18 +278,13 @@ int main() {
 
     rot0 = glm::translate(rot0, glm::vec3(-0.0f, 0.0f, 1.0f));
     rot0 = glm::rotate(rot0, glm::radians(90.0f), glm::vec3(0.0, 1.0, 0.0));
-
     rot1 = glm::translate(rot1, glm::vec3(1.0f, 0.0f, 0.0f));
     rot1 = glm::rotate(rot1, glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0));
-
     rot2 = glm::translate(rot2, glm::vec3(0.0f, 0.0f, 1.0f));
     rot2 = glm::rotate(rot2, glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
-
     rot3 = glm::translate(rot3, glm::vec3(0.0f, 1.0f, 0.0f));
     rot3 = glm::rotate(rot3, glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
-
     rot4 = glm::translate(rot4, glm::vec3(0.0f, 0.0f, 0.0f));
-
     rot5 = glm::translate(rot5, glm::vec3(1.0f, 0.0f, 1.0f));
     rot5 = glm::rotate(rot5, glm::radians(180.0f), glm::vec3(0.0, 1.0, 0.0));
 
@@ -412,7 +407,7 @@ int main() {
             glUniformMatrix4fv(selectProjLoc, 1, GL_FALSE, glm::value_ptr(proj));
             glUniformMatrix4fv(selectViewLoc, 1, GL_FALSE, glm::value_ptr(view));
             glUniformMatrix4fv(selectTransformLoc, 1, GL_FALSE, glm::value_ptr(trans));
-        
+
             glBindVertexArray(selectVAO);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
