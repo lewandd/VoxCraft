@@ -24,7 +24,7 @@ const int DIM_SIZE[] = {
 
 // Chunks
 
-const int CHUNKS_COUNT = 256;
+const int CHUNKS_COUNT = 1024;
 const int CHUNK_SIZE = MAX_DIM_SIZE;
 
 const int TOTAL_SIZE = CHUNKS_COUNT * CHUNK_SIZE;
