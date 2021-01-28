@@ -29,8 +29,8 @@ void updateVisibleChunks();
 //CHUNK* generate_chunk(int x, int y);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 800;
+unsigned int SCR_WIDTH = 800;
+unsigned int SCR_HEIGHT = 800;
 
 // camera
 //Camera camera(glm::vec3(-3.0f, 28.0f, 3.0f));
@@ -346,7 +346,7 @@ int main() {
         glUniformMatrix4fv(rot5Loc, 1, GL_FALSE, glm::value_ptr(rot5));
 
         // set matrices
-        glm::mat4 proj = glm::perspective(glm::radians(70.0f), (float)width / (float)height, 0.1f, 100.0f);        
+        glm::mat4 proj = glm::perspective(glm::radians(70.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);        
         glm::mat4 view = camera.getViewMatrix();
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -581,6 +581,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     // make sure the viewport matches the new window dimensions; note that width and 
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
+    SCR_WIDTH = width;
+    SCR_HEIGHT = height;
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
@@ -723,7 +725,7 @@ void selectBlock() {
     selected = false;
 
     float depth;
-    glReadPixels(400, 400, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+    glReadPixels(SCR_WIDTH/2, SCR_HEIGHT/2, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
     float distance = 1.0f / (depth * (1.0f / 100.0f - 1.0f / 0.1f) + 1.0f / 0.1f);
 
     glm::vec3 lookAt = camera.position + camera.Front * distance;
