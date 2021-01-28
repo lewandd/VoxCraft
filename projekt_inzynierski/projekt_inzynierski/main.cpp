@@ -65,11 +65,11 @@ vector <CHUNK*> visibleChunks;
 vector <CHUNK*> unvisibleChunks;
 
 bool compareChunks(CHUNK* ch1, CHUNK* ch2) {
-    float cdx1 = camera.Position.x - (ch1->x * 16.0 + 8.0);
-    float cdy1 = camera.Position.z - (ch1->y * 16.0 + 8.0);
+    float cdx1 = camera.position.x - (ch1->x * 16.0 + 8.0);
+    float cdy1 = camera.position.z - (ch1->y * 16.0 + 8.0);
 
-    float cdx2 = camera.Position.x - (ch2->x * 16.0 + 8.0);
-    float cdy2 = camera.Position.z - (ch2->y * 16.0 + 8.0);
+    float cdx2 = camera.position.x - (ch2->x * 16.0 + 8.0);
+    float cdy2 = camera.position.z - (ch2->y * 16.0 + 8.0);
     
     return (cdx1*cdx1 + cdy1 * cdy1 < cdx2 * cdx2 + cdy2 * cdy2);
 }
@@ -347,7 +347,7 @@ int main() {
 
         // set matrices
         glm::mat4 proj = glm::perspective(glm::radians(70.0f), (float)width / (float)height, 0.1f, 100.0f);        
-        glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 view = camera.getViewMatrix();
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(proj));
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
@@ -462,8 +462,8 @@ int main() {
 }
 
 void updateVisibleChunks() {
-    int chunk_x = camera.Position.x / 16;
-    int chunk_y = camera.Position.z / 16;
+    int chunk_x = camera.position.x / 16;
+    int chunk_y = camera.position.z / 16;
 
     // clear near table
     for (int i = 0; i < numNearChunks; ++i)
@@ -472,8 +472,8 @@ void updateVisibleChunks() {
 
     // update visible vector (remove)
     for (int i = 0; i < (int)visibleChunks.size(); ++i) {
-        float cdx = camera.Position.x - (visibleChunks[i]->x * 16.0 + 8.0);
-        float cdy = camera.Position.z - (visibleChunks[i]->y * 16.0 + 8.0);
+        float cdx = camera.position.x - (visibleChunks[i]->x * 16.0 + 8.0);
+        float cdy = camera.position.z - (visibleChunks[i]->y * 16.0 + 8.0);
         if (cdx * cdx + cdy * cdy > 12000.0) {
             unvisibleChunks.push_back(visibleChunks[i]);
             visibleChunks.erase(visibleChunks.begin() + i);
@@ -493,8 +493,8 @@ void updateVisibleChunks() {
             if (nearChunks[i + renderChunkDistance][j + renderChunkDistance] == NULL) {
                 // is pos available
                 if ((chunk_x + i) >= 0 && (chunk_x + i) < CHUNKS_COUNT && (chunk_y + j) >= 0 && (chunk_y + j) < CHUNKS_COUNT) {
-                    float cdx = camera.Position.x - ((chunk_x + i) * 16.0 + 8.0);
-                    float cdy = camera.Position.z - ((chunk_y + j) * 16.0 + 8.0);
+                    float cdx = camera.position.x - ((chunk_x + i) * 16.0 + 8.0);
+                    float cdy = camera.position.z - ((chunk_y + j) * 16.0 + 8.0);
 
                     // near (should be added)
                     if (cdx * cdx + cdy * cdy < 12000.0) {
@@ -692,7 +692,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
         choosedType = max(choosedType - 1, 0);
         changeScroll = 0.0f;
     }
-    camera.ProcessMouseScroll(yoffset);
     
 }
 
@@ -727,7 +726,7 @@ void selectBlock() {
     glReadPixels(400, 400, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
     float distance = 1.0f / (depth * (1.0f / 100.0f - 1.0f / 0.1f) + 1.0f / 0.1f);
 
-    glm::vec3 lookAt = camera.Position + camera.Front * distance;
+    glm::vec3 lookAt = camera.position + camera.Front * distance;
     //printf("exactly (%8.5f, %8.5f, %8.5f) ", lookAt.x, lookAt.y, lookAt.z);
 
     if (distance < 99.9f) {
