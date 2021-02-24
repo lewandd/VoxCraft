@@ -51,6 +51,12 @@ float select_vertices[] = {
     0.0f, 0.0f, 0.0f,
 };
 
+void remData(CHUNK*, Octree*, Block*);
+void addData(CHUNK*, Octree*, Block*);
+void addSingleData(CHUNK*, Octree*, Block*, int);
+Block* getNeighbour(CHUNK* ch, Octree* o, int bx, int by, int bz, int blvl, CHUNK** neighch, Octree** neigho, int i, int& nchx, int& nchy);
+void updateChunk(CHUNK* ch, int neigh);
+
 class CHUNK {
 public:
     Octree* o[8];
