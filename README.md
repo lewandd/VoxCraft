@@ -3,6 +3,8 @@
 ## Overview
 **VoxCraft** is a sandbox 3D game featuring a procedurally generated voxel-based world. The project aims to create a **Minecraft-like environment** optimized for **low memory (RAM) usage** and efficient rendering. To achieve this, the game was developed using **C++** and **OpenGL**, along with several custom optimizations and low-level performance techniques.
 
+> ⚠️ This project is currently a **work in progress**. Some features may be missing, unstable, or under active development.
+
 ## Getting started
 
 ### Prerequisites
@@ -34,4 +36,6 @@ Visual Studio environment and configuration_files.zip (for OpenGL API configurat
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the CC BY-NC 4.0 License. See `LICENSE` for more information.
+
+> ⚠️ Some parts of the code are based on materials licensed under CC BY-NC 4.0. In future releases, these components are planned to be replaced with original implementations (or equivalents under the MIT License), allowing the entire project to be released under the MIT License.
