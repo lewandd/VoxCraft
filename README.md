@@ -1,6 +1,7 @@
-# VoxCraft
+# VoxCraft ⛏️
 
-VoxCraft is a sandbox 3D game with procedurally generated world made of voxels. The aim of the project was to create Minecraft-like game optimized in context of RAM usage. For this purpose, low-level tools (C++, OpenGL) and various optimizing solutions were used.
+## Overview
+**VoxCraft** is a sandbox 3D game featuring a procedurally generated voxel-based world. The project aims to create a **Minecraft-like environment** optimized for **low memory (RAM) usage** and efficient rendering. To achieve this, the game was developed using **C++** and **OpenGL**, along with several custom optimizations and low-level performance techniques.
 
 ## Getting started
 
@@ -30,3 +31,7 @@ Visual Studio environment and configuration_files.zip (for OpenGL API configurat
    - Add glad.c to project
      - Right mouse button on project name
      - Add > Existing element... > glad.c
+
+## License
+
+Distributed under the MIT License. See `LICENSE` for more information.
